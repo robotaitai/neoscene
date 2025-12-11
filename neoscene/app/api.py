@@ -211,13 +211,13 @@ class HealthResponse(BaseModel):
 
 @app.post("/chat", response_model=ChatResponse, tags=["Chat"])
 async def chat(req: ChatRequest):
-    """Chat-driven scene generation.
+    """Chat-driven scene generation with memory.
 
-    Send a natural language message to create a scene.
+    Send a natural language message to create or modify a scene.
     The MuJoCo viewer will automatically launch/restart with the new scene.
 
-    Each message is treated as a full scene description.
-    The session_id is used to track the conversation.
+    If a previous scene exists in the session, the LLM will modify it
+    based on your message. Otherwise, it creates a new scene.
     """
     if not req.message.strip():
         raise HTTPException(status_code=400, detail="Message cannot be empty")
@@ -225,12 +225,17 @@ async def chat(req: ChatRequest):
     # Get or create session
     session = session_manager.get_or_create_session(req.session_id)
 
-    logger.info(f"[{session.session_id}] Chat: '{req.message[:100]}...'")
+    # Get previous scene for incremental updates
+    previous_scene = session.last_scene
+    
+    if previous_scene:
+        logger.info(f"[{session.session_id}] Modifying '{previous_scene.name}': '{req.message[:100]}...'")
+    else:
+        logger.info(f"[{session.session_id}] Creating new scene: '{req.message[:100]}...'")
 
-    # MVP: Treat each message as a full scene description for now.
-    # Later, we can pass previous scene + history to SceneAgent for incremental edits.
+    # Pass previous scene to agent for incremental updates
     try:
-        spec = agent.generate_and_repair(req.message)
+        spec = agent.generate_and_repair(req.message, previous_scene=previous_scene)
     except SceneGenerationError as e:
         raise HTTPException(status_code=500, detail=f"Failed to generate scene: {e}")
     except Exception as e:

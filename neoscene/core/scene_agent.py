@@ -226,9 +226,15 @@ that conforms to the SceneSpec schema.
 6. Return ONLY valid JSON, no explanations or markdown
 """
 
-    def _build_user_prompt(self, user_prompt: str) -> str:
-        """Build the user prompt for scene generation."""
-        return f"""Create a SceneSpec JSON for this scene:
+    def _build_user_prompt(self, user_prompt: str, previous_scene: Optional[SceneSpec] = None) -> str:
+        """Build the user prompt for scene generation.
+        
+        Args:
+            user_prompt: The user's natural language request.
+            previous_scene: Optional previous scene to modify.
+        """
+        if previous_scene is None:
+            return f"""Create a SceneSpec JSON for this scene:
 
 "{user_prompt}"
 
@@ -237,12 +243,40 @@ Remember:
 - Position objects logically (z=0 is ground, positive z is up)
 - Include at least one camera
 - Return ONLY the JSON object, no markdown or explanations"""
+        
+        # Include previous scene for modification
+        import json
+        prev_json = json.dumps(previous_scene.model_dump(), indent=2)
+        
+        return f"""Here is the CURRENT scene:
 
-    def generate_scene_spec(self, user_prompt: str) -> SceneSpec:
+```json
+{prev_json}
+```
+
+The user wants to MODIFY this scene with the following request:
+
+"{user_prompt}"
+
+Instructions:
+- Start from the current scene and apply the user's modifications
+- Keep existing objects/cameras unless the user asks to remove them
+- Add new objects where specified
+- Modify positions, counts, or layouts as requested
+- Use ONLY asset_id values from the Available Assets list
+- Return the COMPLETE modified scene as JSON (not just the changes)
+- Return ONLY the JSON object, no markdown or explanations"""
+
+    def generate_scene_spec(
+        self, 
+        user_prompt: str, 
+        previous_scene: Optional[SceneSpec] = None
+    ) -> SceneSpec:
         """Generate a SceneSpec from a natural language prompt.
 
         Args:
             user_prompt: Natural language description of the desired scene.
+            previous_scene: Optional previous scene to modify (for incremental updates).
 
         Returns:
             Valid SceneSpec object.
@@ -251,10 +285,13 @@ Remember:
             LLMError: If LLM generation fails.
             SceneValidationError: If the generated JSON is invalid.
         """
-        logger.info(f"Generating scene for prompt: '{user_prompt[:100]}...'")
+        if previous_scene:
+            logger.info(f"Updating scene '{previous_scene.name}' with: '{user_prompt[:100]}...'")
+        else:
+            logger.info(f"Generating scene for prompt: '{user_prompt[:100]}...'")
 
         system_prompt = self._build_system_prompt()
-        user_message = self._build_user_prompt(user_prompt)
+        user_message = self._build_user_prompt(user_prompt, previous_scene)
         full_prompt = f"{system_prompt}\n\n---\n\n{user_message}"
 
         try:
@@ -385,7 +422,11 @@ Remember:
 
         return errors
 
-    def generate_and_repair(self, user_prompt: str) -> SceneSpec:
+    def generate_and_repair(
+        self, 
+        user_prompt: str,
+        previous_scene: Optional[SceneSpec] = None
+    ) -> SceneSpec:
         """Generate a SceneSpec with automatic repair on failure.
 
         This method attempts to generate a scene, and if validation fails,
@@ -393,6 +434,7 @@ Remember:
 
         Args:
             user_prompt: Natural language description of the desired scene.
+            previous_scene: Optional previous scene to modify (for incremental updates).
 
         Returns:
             Valid SceneSpec object.
@@ -405,7 +447,7 @@ Remember:
         for attempt in range(self.max_repair_attempts + 1):
             try:
                 if attempt == 0:
-                    return self.generate_scene_spec(user_prompt)
+                    return self.generate_scene_spec(user_prompt, previous_scene)
                 else:
                     logger.info(f"Repair attempt {attempt}/{self.max_repair_attempts}")
                     return self._repair_scene_spec(
