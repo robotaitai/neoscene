@@ -1,2 +1,6 @@
-<!-- Orchard environment - includable fragment -->
-<geom name="ground" type="plane" size="50 50 0.1" rgba="0.4 0.6 0.3 1"/>
+<mujoco>
+  <!-- Orchard environment with grass ground -->
+  <worldbody>
+    <geom name="ground" type="plane" size="100 100 0.1" rgba="0.4 0.6 0.3 1"/>
+  </worldbody>
+</mujoco>

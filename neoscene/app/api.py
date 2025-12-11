@@ -447,3 +447,29 @@ async def get_camera(session_id: str):
             )
         except ImportError:
             return Response(status_code=204)
+
+
+class ControlInput(BaseModel):
+    """Control input for vehicle."""
+    throttle: float = Field(0.0, ge=-1.0, le=1.0, description="Throttle: -1 (reverse) to 1 (forward)")
+    steering: float = Field(0.0, ge=-1.0, le=1.0, description="Steering: -1 (left) to 1 (right)")
+
+
+@app.post("/control/{session_id}", tags=["Telemetry"])
+async def set_control(session_id: str, control: ControlInput):
+    """Set control inputs for a session's vehicle.
+    
+    Use this endpoint to drive robots/vehicles in the simulation.
+    Call continuously while key is held (e.g., every 100ms).
+    
+    - throttle: -1.0 (full reverse) to 1.0 (full forward)
+    - steering: -1.0 (left) to 1.0 (right)
+    """
+    session = session_manager.get_or_create_session(session_id)
+    worker = session.sim_worker
+    
+    if worker is None:
+        return JSONResponse({"ok": False, "error": "No simulation running"}, status_code=200)
+    
+    worker.set_controls(control.throttle, control.steering)
+    return JSONResponse({"ok": True, "throttle": control.throttle, "steering": control.steering})

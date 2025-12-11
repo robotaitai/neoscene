@@ -194,7 +194,7 @@ def _load_asset_content(mjcf_path: Path, prefix: str) -> dict:
     content = re.sub(r"<!--.*?-->", "", content, flags=re.DOTALL)
     content = content.strip()
 
-    result = {"worldbody": [], "sensors": [], "assets": [], "actuators": []}
+    result = {"worldbody": [], "sensors": [], "assets": [], "actuators": [], "has_freejoint": False}
 
     if not content:
         return result
@@ -259,6 +259,12 @@ def _load_asset_content(mjcf_path: Path, prefix: str) -> dict:
             for child in worldbody:
                 rename_recursive(child)
                 result["worldbody"].append(child)
+                # Check if this body has a freejoint (needs special handling)
+                if child.tag == "body":
+                    for sub in child:
+                        if sub.tag == "freejoint":
+                            result["has_freejoint"] = True
+                            result["freejoint_body"] = child.get("name")
         
         # Extract sensor elements
         sensor_elem = root.find("sensor")
@@ -397,27 +403,39 @@ def scene_to_mjcf(
         obj_name_base = obj.name or obj.asset_id
 
         for idx, inst in enumerate(instances):
-            body = ET.SubElement(worldbody, "body")
-
             # Generate unique name
             if inst.name_suffix:
                 body_name = f"{obj_name_base}_{inst.name_suffix}"
             else:
                 body_name = f"{obj_name_base}_{idx}"
-            body.set("name", body_name)
-
-            # Set position
-            body.set("pos", _format_vec(inst.pose.position))
-
-            # Set orientation if non-zero
-            roll, pitch, yaw = _to_euler_deg(inst.pose)
-            if roll != 0 or pitch != 0 or yaw != 0:
-                body.set("euler", _format_vec([roll, pitch, yaw]))
 
             # Load and inline object content
             obj_content = _load_asset_content(obj_mjcf_path, body_name)
-            for elem in obj_content["worldbody"]:
-                body.append(elem)
+            
+            # Check if asset has a freejoint (needs special handling)
+            if obj_content.get("has_freejoint"):
+                # Freejoint bodies go directly in worldbody with position set on them
+                for elem in obj_content["worldbody"]:
+                    # Set position on the freejoint body itself
+                    elem.set("pos", _format_vec(inst.pose.position))
+                    roll, pitch, yaw = _to_euler_deg(inst.pose)
+                    if roll != 0 or pitch != 0 or yaw != 0:
+                        elem.set("euler", _format_vec([roll, pitch, yaw]))
+                    worldbody.append(elem)
+            else:
+                # Regular objects: wrap in a positioning body
+                body = ET.SubElement(worldbody, "body")
+                body.set("name", body_name)
+                body.set("pos", _format_vec(inst.pose.position))
+                
+                roll, pitch, yaw = _to_euler_deg(inst.pose)
+                if roll != 0 or pitch != 0 or yaw != 0:
+                    body.set("euler", _format_vec([roll, pitch, yaw]))
+                
+                for elem in obj_content["worldbody"]:
+                    body.append(elem)
+            
+            # Add assets, sensors, actuators
             for elem in obj_content["assets"]:
                 asset.append(elem)
             all_sensors.extend(obj_content["sensors"])

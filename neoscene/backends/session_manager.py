@@ -36,6 +36,11 @@ class SimulationWorker:
     running: bool = False
     latest_sensors: dict = field(default_factory=dict)
     latest_image: Optional[np.ndarray] = None
+    
+    # Control inputs (set by API, used by simulation)
+    throttle: float = 0.0  # -1 to 1, controls rear wheels
+    steering: float = 0.0  # -1 to 1, not used yet (no steering joints)
+    
     _model: object = None
     _data: object = None
     _renderer: object = None
@@ -73,22 +78,29 @@ class SimulationWorker:
         logger.info("SimWorker stopped")
     
     def _apply_controls(self):
-        """Apply simple control inputs to actuators.
+        """Apply control inputs to actuators based on throttle/steering.
         
-        This is a simple "drive forward" demo controller.
-        Sets wheel motors to a slow constant velocity.
+        Uses self.throttle (-1 to 1) to control wheel motors.
+        Positive throttle = forward, negative = reverse.
         """
         import mujoco
         
         m = self._model
         d = self._data
         
-        # Simple demo: set all velocity-controlled wheel motors to spin slowly
+        # Map throttle to wheel velocity (rad/s)
+        # throttle=1.0 -> ~20 rad/s -> ~6 m/s for 0.6m radius wheel
+        target_velocity = self.throttle * 20.0
+        
         for i in range(m.nu):
             name = mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_ACTUATOR, i)
             if name and ('motor' in name.lower() or 'drive' in name.lower()):
-                # Gentle forward motion: 2 rad/s (about 0.5 m/s for 0.5m wheel)
-                d.ctrl[i] = 2.0
+                d.ctrl[i] = target_velocity
+    
+    def set_controls(self, throttle: float = 0.0, steering: float = 0.0):
+        """Set control inputs (called from API)."""
+        self.throttle = max(-1.0, min(1.0, throttle))
+        self.steering = max(-1.0, min(1.0, steering))
     
     def _read_sensors(self):
         """Read all sensor values from the simulation."""

@@ -538,3 +538,32 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #4b5563;
 }
+
+/* ============================================
+   Keyboard Controls Hint
+   ============================================ */
+
+.keyboard-hint {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #1f2937;
+  font-size: 12px;
+  color: #9ca3af;
+  line-height: 1.6;
+}
+
+.keyboard-hint strong {
+  color: #34d399;
+}
+
+.key {
+  display: inline-block;
+  background: #1f2937;
+  border: 1px solid #374151;
+  border-radius: 3px;
+  padding: 1px 6px;
+  font-family: "SF Mono", Menlo, Monaco, monospace;
+  font-size: 11px;
+  color: #e5e7eb;
+  margin: 0 2px;
+}
