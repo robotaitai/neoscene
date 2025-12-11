@@ -1,30 +1,122 @@
 <!doctype html>
 <html>
-<head>
-  <meta charset="utf-8" />
-  <title>neoscene chat</title>
-  <link rel="stylesheet" href="/static/styles.css" />
-</head>
-<body>
-  <div id="root">
+  <head>
+    <meta charset="utf-8" />
+    <title>neoscene chat</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <style>
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        background: #111;
+        color: #eee;
+      }
+
+      .layout {
+        display: flex;
+        height: 100vh;
+      }
+
+      .chat-pane {
+        flex: 2;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid #333;
+      }
+
+      .scene-pane {
+        flex: 1;
+        padding: 16px;
+        box-sizing: border-box;
+      }
+
+      .chat-log {
+        flex: 1;
+        padding: 16px;
+        overflow-y: auto;
+      }
+
+      .msg {
+        margin-bottom: 8px;
+        max-width: 80%;
+        padding: 8px 10px;
+        border-radius: 8px;
+      }
+
+      .msg-user {
+        background: #2f6feb;
+        align-self: flex-end;
+      }
+
+      .msg-assistant {
+        background: #222;
+        border: 1px solid #444;
+        align-self: flex-start;
+      }
+
+      .chat-input {
+        display: flex;
+        padding: 8px;
+        border-top: 1px solid #333;
+      }
+
+      #chat-message {
+        flex: 1;
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #444;
+        background: #000;
+        color: #eee;
+      }
+
+      #chat-send {
+        margin-left: 8px;
+        padding: 8px 16px;
+        border-radius: 4px;
+        border: 1px solid #2f6feb;
+        background: #2f6feb;
+        color: white;
+        cursor: pointer;
+      }
+
+      .scene-card {
+        border-radius: 8px;
+        border: 1px solid #333;
+        padding: 12px;
+      }
+
+      .hint {
+        margin-top: 12px;
+        font-size: 12px;
+        color: #aaa;
+      }
+    </style>
+  </head>
+  <body>
     <div class="layout">
       <div class="chat-pane">
-        <h1>🎬 Neoscene</h1>
         <div id="chat-log" class="chat-log"></div>
         <div class="chat-input">
-          <input id="chat-message" type="text" placeholder="Describe your scene..." />
+          <input
+            id="chat-message"
+            type="text"
+            placeholder="Describe your scene: e.g. 'An orchard with 3 crates behind the tractor'..."
+          />
           <button id="chat-send">Send</button>
         </div>
       </div>
       <div class="scene-pane">
-        <h2>Scene status</h2>
-        <div id="scene-status">No scene yet.</div>
+        <div class="scene-card">
+          <h2>Scene status</h2>
+          <div id="scene-status">No scene yet.</div>
+        </div>
         <p class="hint">
-          MuJoCo viewer runs as a separate window on the server. Each message updates the scene.
+          MuJoCo runs in a separate window on this machine.  
+          Every message here generates a new scene and updates that window.
         </p>
       </div>
     </div>
-  </div>
-  <script src="/static/app.js"></script>
-</body>
+
+    <script src="/static/app.js"></script>
+  </body>
 </html>

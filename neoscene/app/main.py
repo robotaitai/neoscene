@@ -184,10 +184,11 @@ Examples:
   # Generate MJCF without launching viewer
   python -m neoscene.app.main --scene-json examples/orchard_scene.json --output scene.xml --no-viewer
 
-  # Start the API server
-  python -m neoscene.app.main --api
+  # Start the API server with chat UI
+  python -m neoscene.app.main --chat-ui
+  python -m neoscene.app.main --api  # (same as --chat-ui)
 
-  # Generate a scene from text prompt
+  # Generate a scene from text prompt (one-shot)
   python -m neoscene.app.main --generate "An orchard with a tractor"
 """,
     )
@@ -205,6 +206,12 @@ Examples:
         "--api",
         action="store_true",
         help="Start the FastAPI server",
+    )
+
+    mode_group.add_argument(
+        "--chat-ui",
+        action="store_true",
+        help="Run FastAPI server with chat UI (alias for --api)",
     )
 
     mode_group.add_argument(
@@ -272,7 +279,7 @@ def main() -> None:
     args = parser.parse_args()
 
     # Determine mode and run
-    if args.api:
+    if args.api or getattr(args, 'chat_ui', False):
         exit_code = run_api(host=args.host, port=args.port, reload=args.reload)
     elif args.generate:
         exit_code = run_generate(
@@ -292,9 +299,9 @@ def main() -> None:
         print("neoscene CLI - Text-to-scene generator for MuJoCo")
         print()
         print("Usage:")
-        print("  python -m neoscene.app.main --scene-json <path>  # Run a scene")
-        print("  python -m neoscene.app.main --api                # Start API server")
-        print("  python -m neoscene.app.main --generate <prompt>  # Generate from text")
+        print("  python -m neoscene.app.main --chat-ui            # Start chat UI server")
+        print("  python -m neoscene.app.main --scene-json <path>  # Run a scene from JSON")
+        print("  python -m neoscene.app.main --generate <prompt>  # One-shot generate from text")
         print()
         print("Run with --help for more options.")
         exit_code = 0
