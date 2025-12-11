@@ -21,6 +21,23 @@
           />
           <button id="chat-send">Send</button>
         </div>
+        
+        <!-- Moved ops log and hints under chat -->
+        <div class="chat-footer">
+          <div class="footer-panel ops-panel-footer">
+            <div class="footer-header">Ops Log</div>
+            <div id="ops-log" class="footer-body ops-body"></div>
+          </div>
+          <div class="footer-panel hint-panel-footer">
+            <div class="footer-header">Hints</div>
+            <div class="footer-body hint-body">
+              <span><code>start task &lt;name&gt;</code></span>
+              <span><code>stop task</code></span>
+              <span><code>plan a task...</code></span>
+              <span><code>add N objects</code></span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="side-pane">
@@ -68,24 +85,6 @@
           <div class="panel-body camera-body">
             <div id="camera-no-text" class="no-data">No scene loaded.</div>
             <div id="camera-panel-body"></div>
-          </div>
-        </div>
-
-        <div class="panel ops-panel">
-          <div class="panel-header">Ops Log</div>
-          <div id="ops-log" class="panel-body ops-body"></div>
-        </div>
-
-        <div class="panel hint-panel">
-          <div class="panel-header">Command Hints</div>
-          <div class="panel-body hint-body">
-            <ul>
-              <li><code>create an orchard with ...</code></li>
-              <li><code>add N &lt;object&gt; behind ...</code></li>
-              <li><code>move camera higher</code></li>
-              <li><code>arrange trees in a 5x5 grid</code></li>
-              <li><code>start over</code> / <code>new scene</code></li>
-            </ul>
           </div>
         </div>
       </div>

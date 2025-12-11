@@ -63,26 +63,43 @@ class TaskRunner:
             name = mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_BODY, i)
             if name and ("tractor" in name.lower() and "base" in name.lower()):
                 self._body_id = i
-                logger.debug(f"TaskRunner: found robot body '{name}' (id={i})")
+                logger.info(f"TaskRunner: found robot body '{name}' (id={i})")
                 break
         
         if self._body_id is None:
             logger.warning("TaskRunner: no tractor body found")
             return
         
-        # Find wheel actuators
+        # Find wheel actuators - look for motor_rl/motor_rr patterns (common in tractors)
+        # Also check for left/right, _fl/_fr, _rl/_rr suffixes
         for i in range(m.nu):
             name = mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_ACTUATOR, i)
             if name:
                 name_lower = name.lower()
-                if "left" in name_lower or "_fl" in name_lower or "_rl" in name_lower:
-                    if self._left_motor_id is None:
-                        self._left_motor_id = i
-                        logger.debug(f"TaskRunner: left motor '{name}' (id={i})")
-                elif "right" in name_lower or "_fr" in name_lower or "_rr" in name_lower:
-                    if self._right_motor_id is None:
-                        self._right_motor_id = i
-                        logger.debug(f"TaskRunner: right motor '{name}' (id={i})")
+                
+                # Left wheel motor patterns
+                is_left = ("motor_rl" in name_lower or 
+                          "motor_fl" in name_lower or 
+                          "_rl" in name_lower or 
+                          "_fl" in name_lower or
+                          "left" in name_lower)
+                
+                # Right wheel motor patterns
+                is_right = ("motor_rr" in name_lower or 
+                           "motor_fr" in name_lower or 
+                           "_rr" in name_lower or 
+                           "_fr" in name_lower or
+                           "right" in name_lower)
+                
+                if is_left and self._left_motor_id is None:
+                    self._left_motor_id = i
+                    logger.info(f"TaskRunner: left motor '{name}' (id={i})")
+                elif is_right and self._right_motor_id is None:
+                    self._right_motor_id = i
+                    logger.info(f"TaskRunner: right motor '{name}' (id={i})")
+        
+        if self._left_motor_id is None or self._right_motor_id is None:
+            logger.warning(f"TaskRunner: motors not fully detected (left={self._left_motor_id}, right={self._right_motor_id})")
 
     def set_scene(self, scene: SceneSpec):
         """Update the scene reference (called when SceneSpec changes)."""
@@ -102,11 +119,15 @@ class TaskRunner:
         if self._body_id is None:
             logger.warning("TaskRunner: no robot body detected")
             return False
+        
+        if self._left_motor_id is None or self._right_motor_id is None:
+            logger.warning(f"TaskRunner: motors not detected (L={self._left_motor_id}, R={self._right_motor_id})")
+            return False
 
         # Find the task
         task = next((t for t in self.scene.tasks if t.name == task_name), None)
         if not task:
-            logger.warning(f"TaskRunner: task '{task_name}' not found")
+            logger.warning(f"TaskRunner: task '{task_name}' not found in {[t.name for t in self.scene.tasks]}")
             return False
 
         # Find the path referenced by the task

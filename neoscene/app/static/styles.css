@@ -146,6 +146,67 @@ body {
 }
 
 /* ============================================
+   Chat Footer (Ops Log + Hints under chat)
+   ============================================ */
+
+.chat-footer {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px 12px;
+  border-top: 1px solid #111827;
+  background: rgba(0, 0, 0, 0.3);
+  max-height: 120px;
+}
+
+.footer-panel {
+  flex: 1;
+  background: #0a0f1a;
+  border: 1px solid #1f2937;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.footer-header {
+  padding: 4px 10px;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #4b5563;
+  font-weight: 600;
+  background: #0f172a;
+  border-bottom: 1px solid #1e293b;
+}
+
+.footer-body {
+  padding: 6px 10px;
+  font-size: 10px;
+  max-height: 70px;
+  overflow-y: auto;
+}
+
+.ops-panel-footer .footer-body {
+  font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+}
+
+.hint-panel-footer .footer-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.hint-panel-footer .footer-body span {
+  display: inline-block;
+}
+
+.hint-panel-footer .footer-body code {
+  background: #1e293b;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 9px;
+  color: #6b7280;
+}
+
+/* ============================================
    Side Pane (right side)
    ============================================ */
 
