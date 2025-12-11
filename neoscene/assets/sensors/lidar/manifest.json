@@ -1,0 +1,17 @@
+{
+  "asset_id": "lidar",
+  "name": "LiDAR Sensor",
+  "category": "sensor",
+  "tags": ["lidar", "sensor", "laser", "ranging", "3d", "point_cloud"],
+  "mjcf_include": "mjcf/lidar.xml",
+  "physical_size": [0.1, 0.1, 0.15],
+  "placement_rules": {
+    "allow_on": ["robot", "mount", "vehicle"],
+    "min_clearance": 0.0
+  },
+  "semantics": {
+    "human_names": ["lidar", "laser scanner", "3d scanner", "range finder"],
+    "usage": ["mapping", "obstacle detection", "SLAM", "3D perception"]
+  }
+}
+

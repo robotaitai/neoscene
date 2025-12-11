@@ -1,0 +1,17 @@
+{
+  "asset_id": "car",
+  "name": "Sedan Car",
+  "category": "prop",
+  "tags": ["car", "vehicle", "sedan", "automobile", "traffic"],
+  "mjcf_include": "mjcf/car.xml",
+  "physical_size": [4.5, 1.8, 1.5],
+  "placement_rules": {
+    "allow_on": ["ground", "road"],
+    "min_clearance": 0.5
+  },
+  "semantics": {
+    "human_names": ["car", "sedan", "automobile", "vehicle"],
+    "usage": ["traffic simulation", "parking", "road scenes"]
+  }
+}
+

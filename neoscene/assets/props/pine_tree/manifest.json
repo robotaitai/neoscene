@@ -1,0 +1,17 @@
+{
+  "asset_id": "pine_tree",
+  "name": "Pine Tree",
+  "category": "prop",
+  "tags": ["tree", "pine", "conifer", "evergreen", "nature", "forest"],
+  "mjcf_include": "mjcf/pine_tree.xml",
+  "physical_size": [3.0, 3.0, 8.0],
+  "placement_rules": {
+    "allow_on": ["ground"],
+    "min_clearance": 1.5
+  },
+  "semantics": {
+    "human_names": ["pine tree", "pine", "conifer", "evergreen tree"],
+    "usage": ["forest", "nature scene", "landscaping"]
+  }
+}
+

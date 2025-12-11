@@ -1,0 +1,17 @@
+{
+  "asset_id": "bicycle",
+  "name": "Bicycle",
+  "category": "prop",
+  "tags": ["bicycle", "bike", "cycle", "transport", "two-wheeler"],
+  "mjcf_include": "mjcf/bicycle.xml",
+  "physical_size": [1.8, 0.5, 1.1],
+  "placement_rules": {
+    "allow_on": ["ground", "road", "path"],
+    "min_clearance": 0.3
+  },
+  "semantics": {
+    "human_names": ["bicycle", "bike", "cycle"],
+    "usage": ["transportation", "recreation", "urban scenes"]
+  }
+}
+

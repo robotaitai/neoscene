@@ -24,8 +24,8 @@ from neoscene.exporters.mjcf_exporter import scene_to_mjcf
 
 logger = get_logger(__name__)
 
-# Use OSMesa for software rendering (works without GPU)
-os.environ.setdefault("MUJOCO_GL", "osmesa")
+# Use EGL for GPU rendering, fall back to OSMesa for software rendering
+os.environ.setdefault("MUJOCO_GL", "egl")
 
 
 @dataclass

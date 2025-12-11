@@ -1,0 +1,17 @@
+{
+  "asset_id": "truck",
+  "name": "Delivery Truck",
+  "category": "prop",
+  "tags": ["truck", "vehicle", "delivery", "cargo", "transport"],
+  "mjcf_include": "mjcf/truck.xml",
+  "physical_size": [6.0, 2.5, 3.0],
+  "placement_rules": {
+    "allow_on": ["ground", "road"],
+    "min_clearance": 1.0
+  },
+  "semantics": {
+    "human_names": ["truck", "delivery truck", "lorry", "cargo truck"],
+    "usage": ["delivery", "logistics", "transport", "road scenes"]
+  }
+}
+

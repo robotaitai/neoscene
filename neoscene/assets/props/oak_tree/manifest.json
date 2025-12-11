@@ -1,0 +1,17 @@
+{
+  "asset_id": "oak_tree",
+  "name": "Oak Tree",
+  "category": "prop",
+  "tags": ["tree", "oak", "deciduous", "nature", "forest", "shade"],
+  "mjcf_include": "mjcf/oak_tree.xml",
+  "physical_size": [6.0, 6.0, 10.0],
+  "placement_rules": {
+    "allow_on": ["ground"],
+    "min_clearance": 2.0
+  },
+  "semantics": {
+    "human_names": ["oak tree", "oak", "deciduous tree", "shade tree"],
+    "usage": ["forest", "park", "nature scene", "landscaping"]
+  }
+}
+

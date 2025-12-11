@@ -178,15 +178,15 @@ def _compute_look_at_euler(
     return (0.0, pitch, yaw)
 
 
-def _load_asset_content(mjcf_path: Path, prefix: str) -> List[ET.Element]:
-    """Load asset MJCF content and rename elements with a prefix.
+def _load_asset_content(mjcf_path: Path, prefix: str) -> dict:
+    """Load asset MJCF content and extract worldbody/sensor elements.
 
     Args:
-        mjcf_path: Path to the asset MJCF fragment file.
+        mjcf_path: Path to the asset MJCF file.
         prefix: Prefix to add to element names for uniqueness.
 
     Returns:
-        List of XML elements from the asset file.
+        Dictionary with 'worldbody' (list of body elements) and 'sensors' (list of sensor elements).
     """
     content = mjcf_path.read_text()
 
@@ -194,26 +194,77 @@ def _load_asset_content(mjcf_path: Path, prefix: str) -> List[ET.Element]:
     content = re.sub(r"<!--.*?-->", "", content, flags=re.DOTALL)
     content = content.strip()
 
-    if not content:
-        return []
+    result = {"worldbody": [], "sensors": [], "assets": []}
 
-    # Wrap in a root element for parsing
-    wrapped = f"<root>{content}</root>"
+    if not content:
+        return result
 
     try:
-        root = ET.fromstring(wrapped)
+        root = ET.fromstring(content)
     except ET.ParseError:
-        # If parsing fails, return empty
-        return []
+        return result
 
-    elements = []
-    for elem in root:
-        # Rename elements with prefix for uniqueness
+    # Build a mapping of original names to prefixed names for this asset
+    name_map = {}
+    
+    def collect_names(elem: ET.Element):
+        """Collect all name attributes for later renaming."""
         if "name" in elem.attrib:
-            elem.set("name", f"{prefix}_{elem.get('name')}")
-        elements.append(elem)
+            name_map[elem.get("name")] = f"{prefix}_{elem.get('name')}"
+        for child in elem:
+            collect_names(child)
+    
+    def rename_recursive(elem: ET.Element):
+        """Recursively rename all 'name' and reference attributes with prefix."""
+        # Rename the name attribute
+        if "name" in elem.attrib and elem.get("name") in name_map:
+            elem.set("name", name_map[elem.get("name")])
+        
+        # Rename reference attributes (site, material, mesh, texture, etc.)
+        for ref_attr in ["site", "material", "mesh", "texture", "class", "childclass"]:
+            if ref_attr in elem.attrib:
+                old_ref = elem.get(ref_attr)
+                if old_ref in name_map:
+                    elem.set(ref_attr, name_map[old_ref])
+        
+        for child in elem:
+            rename_recursive(child)
 
-    return elements
+    # Handle <mujoco> root element
+    if root.tag == "mujoco":
+        # First pass: collect all names from the entire tree
+        for section in [root.find("asset"), root.find("worldbody"), root.find("sensor")]:
+            if section is not None:
+                collect_names(section)
+        
+        # Second pass: extract and rename
+        # Extract asset elements (materials, textures, meshes)
+        asset_elem = root.find("asset")
+        if asset_elem is not None:
+            for child in asset_elem:
+                rename_recursive(child)
+                result["assets"].append(child)
+        
+        # Extract worldbody children
+        worldbody = root.find("worldbody")
+        if worldbody is not None:
+            for child in worldbody:
+                rename_recursive(child)
+                result["worldbody"].append(child)
+        
+        # Extract sensor elements
+        sensor_elem = root.find("sensor")
+        if sensor_elem is not None:
+            for child in sensor_elem:
+                rename_recursive(child)
+                result["sensors"].append(child)
+    else:
+        # Legacy: treat as raw elements
+        collect_names(root)
+        rename_recursive(root)
+        result["worldbody"].append(root)
+
+    return result
 
 
 def scene_to_mjcf(
@@ -299,6 +350,9 @@ def scene_to_mjcf(
             if light_spec.type == "directional":
                 light.set("directional", "true")
 
+    # Collect all sensors from assets
+    all_sensors = []
+
     # Add environment
     env_manifest = catalog.get(scene.environment.asset_id)
     env_path = catalog.get_path(scene.environment.asset_id)
@@ -309,9 +363,12 @@ def scene_to_mjcf(
     env_body.set("pos", "0 0 0")
 
     # Load and inline environment content
-    env_elements = _load_asset_content(env_mjcf_path, f"env_{scene.environment.asset_id}")
-    for elem in env_elements:
+    env_content = _load_asset_content(env_mjcf_path, f"env_{scene.environment.asset_id}")
+    for elem in env_content["worldbody"]:
         env_body.append(elem)
+    for elem in env_content["assets"]:
+        asset.append(elem)
+    all_sensors.extend(env_content["sensors"])
 
     # Add objects
     for obj in scene.objects:
@@ -341,9 +398,12 @@ def scene_to_mjcf(
                 body.set("euler", _format_vec([roll, pitch, yaw]))
 
             # Load and inline object content
-            obj_elements = _load_asset_content(obj_mjcf_path, body_name)
-            for elem in obj_elements:
+            obj_content = _load_asset_content(obj_mjcf_path, body_name)
+            for elem in obj_content["worldbody"]:
                 body.append(elem)
+            for elem in obj_content["assets"]:
+                asset.append(elem)
+            all_sensors.extend(obj_content["sensors"])
 
     # Add cameras
     for cam in scene.cameras:
@@ -360,6 +420,12 @@ def scene_to_mjcf(
             roll, pitch, yaw = _to_euler_deg(cam.pose)
             if roll != 0 or pitch != 0 or yaw != 0:
                 camera.set("euler", _format_vec([roll, pitch, yaw]))
+
+    # Add sensors section if we have any
+    if all_sensors:
+        sensor_section = ET.SubElement(mujoco, "sensor")
+        for sensor_elem in all_sensors:
+            sensor_section.append(sensor_elem)
 
     # Convert to string with pretty printing
     rough_string = ET.tostring(mujoco, encoding="unicode")
