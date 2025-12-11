@@ -5,6 +5,7 @@ Uses subprocess to avoid MuJoCo viewer segfaults when restarting.
 Also runs a headless simulation worker for sensor/camera data.
 """
 
+import os
 import subprocess
 import tempfile
 import threading
@@ -17,8 +18,14 @@ from typing import Dict, Optional
 import numpy as np
 
 from neoscene.core.asset_catalog import AssetCatalog
+from neoscene.core.logging_config import get_logger
 from neoscene.core.scene_schema import SceneSpec
 from neoscene.exporters.mjcf_exporter import scene_to_mjcf
+
+logger = get_logger(__name__)
+
+# Use OSMesa for software rendering (works without GPU)
+os.environ.setdefault("MUJOCO_GL", "osmesa")
 
 
 @dataclass
@@ -32,6 +39,7 @@ class SimulationWorker:
     _model: object = None
     _data: object = None
     _renderer: object = None
+    _render_error_logged: bool = False
     
     def start(self):
         """Initialize MuJoCo model and data."""
@@ -39,12 +47,17 @@ class SimulationWorker:
         self._model = mujoco.MjModel.from_xml_path(self.xml_path)
         self._data = mujoco.MjData(self._model)
         self.running = True
+        logger.info(f"SimWorker started: ncam={self._model.ncam}, nsensor={self._model.nsensor}")
     
     def loop(self):
         """Main simulation loop - runs at ~50Hz."""
         import mujoco
         
-        self.start()
+        try:
+            self.start()
+        except Exception as e:
+            logger.error(f"SimWorker failed to start: {e}")
+            return
         
         while self.running:
             try:
@@ -52,8 +65,11 @@ class SimulationWorker:
                 self._read_sensors()
                 self._render_camera()
                 time.sleep(0.02)  # 50 Hz
-            except Exception:
+            except Exception as e:
+                logger.error(f"SimWorker loop error: {e}")
                 break
+        
+        logger.info("SimWorker stopped")
     
     def _read_sensors(self):
         """Read all sensor values from the simulation."""
@@ -93,16 +109,21 @@ class SimulationWorker:
         if self._renderer is None:
             try:
                 self._renderer = mujoco.Renderer(m, height=240, width=320)
-            except Exception:
-                # Renderer might not be available (no GPU, etc.)
+                logger.info(f"Camera renderer initialized for {m.ncam} camera(s)")
+            except Exception as e:
+                if not self._render_error_logged:
+                    logger.warning(f"Could not create camera renderer: {e}")
+                    self._render_error_logged = True
                 return
         
         try:
-            # Update scene and render
-            self._renderer.update_scene(d, camera=0)  # Use first camera
+            # Update scene and render using first camera
+            self._renderer.update_scene(d, camera=0)
             self.latest_image = self._renderer.render()
-        except Exception:
-            pass
+        except Exception as e:
+            if not self._render_error_logged:
+                logger.warning(f"Camera render error: {e}")
+                self._render_error_logged = True
     
     def stop(self):
         """Stop the simulation loop."""
