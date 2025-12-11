@@ -36,10 +36,12 @@ class SimulationWorker:
     running: bool = False
     latest_sensors: dict = field(default_factory=dict)
     latest_image: Optional[np.ndarray] = None
+    navigator_status: dict = field(default_factory=dict)
     _model: object = None
     _data: object = None
     _renderer: object = None
     _render_error_logged: bool = False
+    _navigator: object = None  # RowNavigator when in orchard mode
     
     def start(self):
         """Initialize MuJoCo model and data."""
@@ -47,7 +49,33 @@ class SimulationWorker:
         self._model = mujoco.MjModel.from_xml_path(self.xml_path)
         self._data = mujoco.MjData(self._model)
         self.running = True
-        logger.info(f"SimWorker started: ncam={self._model.ncam}, nsensor={self._model.nsensor}")
+        
+        # Check if we have trees - if so, enable row navigator
+        self._init_navigator()
+        
+        logger.info(f"SimWorker started: ncam={self._model.ncam}, nsensor={self._model.nsensor}, navigator={'active' if self._navigator else 'off'}")
+    
+    def _init_navigator(self):
+        """Initialize row navigator if trees are present."""
+        import mujoco
+        
+        # Check for tree bodies
+        has_trees = False
+        for b in range(self._model.nbody):
+            name = mujoco.mj_id2name(self._model, mujoco.mjtObj.mjOBJ_BODY, b)
+            if name and 'tree' in name.lower():
+                has_trees = True
+                break
+        
+        if has_trees:
+            try:
+                from neoscene.core.row_navigator import RowNavigator, NavigatorConfig
+                config = NavigatorConfig()
+                self._navigator = RowNavigator(self._model, config)
+                logger.info(f"RowNavigator enabled with {len(self._navigator.tree_body_ids)} trees")
+            except Exception as e:
+                logger.warning(f"Failed to init RowNavigator: {e}")
+                self._navigator = None
     
     def loop(self):
         """Main simulation loop - runs at ~50Hz."""
@@ -75,37 +103,47 @@ class SimulationWorker:
     def _apply_controls(self):
         """Apply control inputs to actuators for motion.
         
-        - Wheel motors: constant forward velocity
-        - Human joints: simple walking gait
+        If RowNavigator is active: use autonomous navigation
+        Otherwise: simple demo motion for wheels and walking gait for humans
         """
         import mujoco
         import math
         
         m = self._model
         d = self._data
-        t = d.time  # Simulation time for gait phase
+        dt = m.opt.timestep
+        t = d.time
         
+        # Use row navigator for tractor if available
+        if self._navigator is not None:
+            v, omega = self._navigator.step(m, d, dt)
+            self._navigator.apply_controls(d, v, omega)
+            self.navigator_status = self._navigator.get_status()
+        else:
+            # Fallback: simple forward motion for all motors
+            for i in range(m.nu):
+                name = mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_ACTUATOR, i)
+                if not name:
+                    continue
+                name_lower = name.lower()
+                
+                if 'motor' in name_lower or 'drive' in name_lower:
+                    d.ctrl[i] = 3.0  # Forward at ~1 m/s
+        
+        # Human walking gait (always active for any humans)
         for i in range(m.nu):
             name = mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_ACTUATOR, i)
             if not name:
                 continue
             name_lower = name.lower()
             
-            # Wheel motors: forward motion
-            if 'motor' in name_lower or 'drive' in name_lower:
-                d.ctrl[i] = 3.0  # ~1 m/s for typical wheel
-            
-            # Human walking gait (simple sinusoidal)
-            elif 'hip_ctrl' in name_lower:
-                # Alternating hip swing for walking
+            if 'hip_ctrl' in name_lower:
                 phase = 0 if 'left' in name_lower else math.pi
-                d.ctrl[i] = 20.0 * math.sin(2.0 * t + phase)  # degrees
+                d.ctrl[i] = 20.0 * math.sin(2.0 * t + phase)
             elif 'knee_ctrl' in name_lower:
-                # Knee bend during swing phase
                 phase = 0 if 'left' in name_lower else math.pi
-                d.ctrl[i] = 30.0 * max(0, math.sin(2.0 * t + phase))  # 0-30 deg
+                d.ctrl[i] = 30.0 * max(0, math.sin(2.0 * t + phase))
             elif 'shoulder_ctrl' in name_lower:
-                # Opposite arm swing
                 phase = math.pi if 'left' in name_lower else 0
                 d.ctrl[i] = 15.0 * math.sin(2.0 * t + phase)
     
@@ -129,6 +167,13 @@ class SimulationWorker:
                 sensors[name] = float(d.sensordata[start])
             else:
                 sensors[name] = [float(d.sensordata[start + i]) for i in range(dim)]
+        
+        # Add navigator status if active
+        if self._navigator is not None:
+            nav = self.navigator_status
+            sensors["_nav_state"] = nav.get("state", "OFF")
+            sensors["_nav_row"] = nav.get("row", 0)
+            sensors["_nav_lateral_error"] = nav.get("lateral_error", 0.0)
         
         self.latest_sensors = sensors
     
