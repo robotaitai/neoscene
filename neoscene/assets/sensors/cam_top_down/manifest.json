@@ -2,7 +2,11 @@
   "asset_id": "cam_top_down",
   "name": "Top-Down Camera",
   "category": "sensor",
-  "tags": ["camera", "sensor", "vision", "overhead", "rgb"],
+  "tags": ["camera", "overhead", "bird_eye", "aerial", "top_view"],
+  "fallback_for": ["surveillance_camera", "monitoring_camera"],
+  "sensor_type": "camera",
+  "availability": "local",
+  "remote_url": null,
   "mjcf_include": "mjcf/cam_top_down.xml",
   "physical_size": null,
   "placement_rules": {
@@ -12,7 +16,5 @@
   "semantics": {
     "human_names": ["top camera", "overhead camera", "bird's eye camera", "top-down camera"],
     "usage": ["monitoring", "surveillance", "tracking", "observation"]
-  },
-  "extra": {}
+  }
 }
-

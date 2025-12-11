@@ -1,20 +1,20 @@
 {
   "asset_id": "trees",
   "name": "Forest Trees",
-  "category": "prop",
-  "tags": ["tree", "forest", "nature", "vegetation", "foliage", "oak"],
+  "category": "nature",
+  "tags": ["tree", "forest", "woods", "vegetation", "orchard"],
+  "fallback_for": ["tree", "apple_tree", "fruit_tree"],
+  "sensor_type": null,
+  "availability": "local",
+  "remote_url": null,
   "mjcf_include": "mjcf/trees.xml",
-  "physical_size": [8.0, 8.0, 12.0],
+  "physical_size": [2.0, 2.0, 6.0],
   "placement_rules": {
     "allow_on": ["ground"],
-    "min_clearance": 2.0
+    "min_clearance": 1.0
   },
   "semantics": {
-    "human_names": ["trees", "tree", "forest", "oak tree", "woodland"],
-    "usage": ["decoration", "nature", "environment", "scenery"]
-  },
-  "extra": {
-    "mesh_file": "meshes/trees9.obj"
+    "human_names": ["tree", "trees", "forest", "woods", "orchard trees"],
+    "usage": ["forest", "orchard", "nature scene", "landscaping"]
   }
 }
-

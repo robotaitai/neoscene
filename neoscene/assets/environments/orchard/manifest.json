@@ -2,7 +2,11 @@
   "asset_id": "orchard",
   "name": "Apple Orchard",
   "category": "environment",
-  "tags": ["outdoor", "farm", "trees", "agriculture", "nature"],
+  "tags": ["orchard", "farm", "field", "outdoor", "agriculture", "trees"],
+  "fallback_for": ["farm", "field", "vineyard"],
+  "sensor_type": null,
+  "availability": "local",
+  "remote_url": null,
   "mjcf_include": "mjcf/orchard.xml",
   "physical_size": [100.0, 100.0, 10.0],
   "placement_rules": {
@@ -12,7 +16,5 @@
   "semantics": {
     "human_names": ["orchard", "apple farm", "fruit garden", "apple orchard"],
     "usage": ["agriculture", "farming", "outdoor", "robotics testing"]
-  },
-  "extra": {}
+  }
 }
-

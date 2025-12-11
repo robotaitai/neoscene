@@ -1,8 +1,12 @@
 {
   "asset_id": "car",
   "name": "Sedan Car",
-  "category": "prop",
-  "tags": ["car", "vehicle", "sedan", "automobile", "traffic"],
+  "category": "vehicle",
+  "tags": ["car", "sedan", "automobile", "vehicle", "road"],
+  "fallback_for": ["tractor", "pickup"],
+  "sensor_type": null,
+  "availability": "local",
+  "remote_url": null,
   "mjcf_include": "mjcf/car.xml",
   "physical_size": [4.5, 1.8, 1.5],
   "placement_rules": {
@@ -14,4 +18,3 @@
     "usage": ["traffic simulation", "parking", "road scenes"]
   }
 }
-

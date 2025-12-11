@@ -1,4 +1,12 @@
-"""Asset catalog for managing and searching assets."""
+"""Asset catalog for managing and searching assets.
+
+The catalog is the runtime index over asset manifests.
+It provides APIs for:
+- Fuzzy text matching (best_match)
+- Fallback resolution (fallback_for)
+- Category/tag filtering
+- LLM prompt generation (grouped by category)
+"""
 
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -21,6 +29,9 @@ class AssetSummary(BaseModel):
     name: str
     category: str
     tags: List[str]
+    fallback_for: List[str] = []
+    sensor_type: Optional[str] = None
+    availability: str = "local"
     path: Path  # path to the asset folder (parent of manifest.json)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -29,31 +40,37 @@ class AssetSummary(BaseModel):
         Returns:
             Dictionary representation with path as string.
         """
-        return {
+        result = {
             "asset_id": self.asset_id,
             "name": self.name,
             "category": self.category,
             "tags": self.tags,
-            "path": str(self.path),
         }
+        if self.fallback_for:
+            result["fallback_for"] = self.fallback_for
+        if self.sensor_type:
+            result["sensor_type"] = self.sensor_type
+        if self.availability == "remote":
+            result["availability"] = "remote"
+        return result
 
 
 class AssetCatalog:
     """Catalog for managing and searching assets.
 
     The catalog scans asset directories, loads manifests, and provides
-    a simple search API for finding assets by text, tags, or category.
+    APIs for finding assets by text, tags, category, or fallback.
+
+    Key APIs:
+        best_match(text, category) - Find best asset matching a concept
+        fallback_for(concept) - Find asset that can substitute for a concept
+        for_llm_prompt() - Get grouped asset list for LLM prompts
 
     Example:
         >>> catalog = AssetCatalog(Path("neoscene/assets"))
-        >>> results = catalog.search("crate")
-        >>> print(results[0].name)
-        'Small Wooden Crate'
-
-    TODO(future): Add vector/embedding-based semantic search
-    TODO(future): Cache asset thumbnails for UI preview
-    TODO(future): Support remote asset repositories
-    TODO(future): Add asset validation CLI tool
+        >>> tractor = catalog.best_match("tractor", category="vehicle")
+        >>> print(tractor.name)
+        'Blue & White Tractor'
     """
 
     def __init__(self, root_dir: Path) -> None:
@@ -66,6 +83,12 @@ class AssetCatalog:
         self._by_id: Dict[str, AssetManifest] = {}
         self._paths: Dict[str, Path] = {}  # asset_id -> folder path
         self._summaries: List[AssetSummary] = []
+        
+        # Indices for fast lookup
+        self._by_category: Dict[str, List[str]] = {}  # category -> [asset_ids]
+        self._by_tag: Dict[str, List[str]] = {}  # tag -> [asset_ids]
+        self._by_fallback: Dict[str, List[str]] = {}  # concept -> [asset_ids that can substitute]
+        
         self._scan()
 
     def _scan(self) -> None:
@@ -73,6 +96,9 @@ class AssetCatalog:
         self._by_id.clear()
         self._paths.clear()
         self._summaries.clear()
+        self._by_category.clear()
+        self._by_tag.clear()
+        self._by_fallback.clear()
 
         logger.info(f"Scanning assets in {self.root_dir}")
 
@@ -80,19 +106,44 @@ class AssetCatalog:
             try:
                 manifest = load_manifest(manifest_path)
                 asset_folder = manifest_path.parent
+                aid = manifest.asset_id
 
-                self._by_id[manifest.asset_id] = manifest
-                self._paths[manifest.asset_id] = asset_folder
+                self._by_id[aid] = manifest
+                self._paths[aid] = asset_folder
 
                 summary = AssetSummary(
-                    asset_id=manifest.asset_id,
+                    asset_id=aid,
                     name=manifest.name,
                     category=manifest.category,
                     tags=manifest.tags,
+                    fallback_for=manifest.fallback_for,
+                    sensor_type=manifest.sensor_type,
+                    availability=manifest.availability,
                     path=asset_folder,
                 )
                 self._summaries.append(summary)
-                logger.debug(f"Loaded asset: {manifest.asset_id} ({manifest.category})")
+                
+                # Build category index
+                cat = manifest.category
+                if cat not in self._by_category:
+                    self._by_category[cat] = []
+                self._by_category[cat].append(aid)
+                
+                # Build tag index
+                for tag in manifest.tags:
+                    tag_lower = tag.lower()
+                    if tag_lower not in self._by_tag:
+                        self._by_tag[tag_lower] = []
+                    self._by_tag[tag_lower].append(aid)
+                
+                # Build fallback index
+                for concept in manifest.fallback_for:
+                    concept_lower = concept.lower()
+                    if concept_lower not in self._by_fallback:
+                        self._by_fallback[concept_lower] = []
+                    self._by_fallback[concept_lower].append(aid)
+
+                logger.debug(f"Loaded asset: {aid} ({cat})")
 
             except Exception as e:
                 logger.warning(f"Failed to load {manifest_path}: {e}")
@@ -258,6 +309,138 @@ class AssetCatalog:
         if category:
             return [s for s in self._summaries if s.category == category]
         return list(self._summaries)
+
+    def best_match(
+        self,
+        text: str,
+        category: Optional[str] = None,
+        prefer_local: bool = True,
+    ) -> Optional[AssetManifest]:
+        """Find the best asset matching a concept/text.
+
+        Uses fuzzy matching on tags, name, and semantic fields.
+        Prefers local assets over remote ones.
+
+        Args:
+            text: Concept or search text (e.g., "tractor", "apple tree")
+            category: Optional category filter
+            prefer_local: If True, prefer local assets over remote
+
+        Returns:
+            Best matching AssetManifest, or None if no match.
+        """
+        results = self.search(text, category=category, limit=10)
+        
+        if not results:
+            return None
+        
+        # Filter by availability if preferred
+        if prefer_local:
+            local_results = [r for r in results if r.availability == "local"]
+            if local_results:
+                return self._by_id[local_results[0].asset_id]
+        
+        return self._by_id[results[0].asset_id]
+
+    def find_fallback(
+        self,
+        concept: str,
+        category: Optional[str] = None,
+    ) -> Optional[AssetManifest]:
+        """Find an asset that can substitute for a concept.
+
+        Looks for assets whose `fallback_for` list includes the concept.
+
+        Args:
+            concept: The concept to find a fallback for (e.g., "tractor")
+            category: Optional category filter
+
+        Returns:
+            AssetManifest that can substitute, or None.
+        """
+        concept_lower = concept.lower()
+        
+        # Check fallback index
+        if concept_lower in self._by_fallback:
+            candidates = self._by_fallback[concept_lower]
+            
+            for aid in candidates:
+                manifest = self._by_id[aid]
+                # Filter by category if specified
+                if category and manifest.category != category:
+                    continue
+                # Prefer local
+                if manifest.availability == "local":
+                    return manifest
+            
+            # Return first remote if no local
+            if candidates:
+                return self._by_id[candidates[0]]
+        
+        return None
+
+    def resolve_asset(
+        self,
+        concept: str,
+        category: Optional[str] = None,
+    ) -> Optional[AssetManifest]:
+        """Resolve a concept to an asset, using fallback if needed.
+
+        First tries direct match, then falls back to fallback_for.
+
+        Args:
+            concept: The concept to resolve (e.g., "tractor")
+            category: Optional category filter
+
+        Returns:
+            Best matching AssetManifest, or None.
+        """
+        # Try direct match first
+        direct = self.best_match(concept, category=category)
+        if direct:
+            return direct
+        
+        # Try fallback
+        return self.find_fallback(concept, category=category)
+
+    def for_llm_prompt(self, local_only: bool = True) -> Dict[str, List[Dict[str, Any]]]:
+        """Generate asset catalog grouped by category for LLM prompts.
+
+        Returns a dict keyed by category, each containing a list of
+        asset summaries suitable for including in an LLM prompt.
+
+        Args:
+            local_only: If True, only include locally available assets
+
+        Returns:
+            Dict like:
+            {
+                "vehicle": [
+                    {"asset_id": "tractor_bluewhite", "tags": ["tractor", "farm"]},
+                    ...
+                ],
+                "nature": [...],
+                ...
+            }
+        """
+        result: Dict[str, List[Dict[str, Any]]] = {}
+        
+        for summary in self._summaries:
+            # Skip remote if local_only
+            if local_only and summary.availability == "remote":
+                continue
+            
+            cat = summary.category
+            if cat not in result:
+                result[cat] = []
+            
+            result[cat].append(summary.to_dict())
+        
+        return result
+
+    def categories(self) -> List[str]:
+        """Return list of all categories that have assets."""
+        return list(self._by_category.keys())
 
     def __len__(self) -> int:
         """Return the number of assets in the catalog."""

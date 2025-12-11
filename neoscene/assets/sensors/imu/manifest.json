@@ -2,7 +2,11 @@
   "asset_id": "imu",
   "name": "IMU Sensor",
   "category": "sensor",
-  "tags": ["imu", "sensor", "accelerometer", "gyroscope", "inertial"],
+  "tags": ["imu", "accelerometer", "gyroscope", "magnetometer", "inertial"],
+  "fallback_for": [],
+  "sensor_type": "imu",
+  "availability": "local",
+  "remote_url": null,
   "mjcf_include": "mjcf/imu.xml",
   "physical_size": [0.03, 0.03, 0.01],
   "placement_rules": {
@@ -14,4 +18,3 @@
     "usage": ["motion tracking", "orientation", "navigation", "stabilization"]
   }
 }
-

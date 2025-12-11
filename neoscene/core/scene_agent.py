@@ -30,22 +30,56 @@ class SceneGenerationError(NeosceneError):
 def _build_asset_catalog_summary(catalog: AssetCatalog) -> str:
     """Build a summary of available assets for the LLM.
 
+    Uses the categorized asset list from the catalog.
+    Includes tags, sensor_type, and fallback_for information.
+
     Args:
         catalog: The asset catalog.
 
     Returns:
-        Formatted string describing available assets.
+        Formatted string describing available assets by category.
     """
-    lines = ["## Available Assets\n"]
-
-    for category in ["environment", "robot", "prop", "sensor"]:
-        assets = list_assets_by_category(catalog, category=category)
-        if assets:
-            lines.append(f"### {category.title()}s")
-            for asset in assets:
-                tags = ", ".join(asset["tags"][:5])
-                lines.append(f"- `{asset['asset_id']}`: {asset['name']} (tags: {tags})")
-            lines.append("")
+    lines = ["## Available Assets (Single Source of Truth)\n"]
+    lines.append("Pick assets ONLY from this list. Match user concepts to tags.\n")
+    
+    # Use the new for_llm_prompt() method
+    llm_data = catalog.for_llm_prompt(local_only=True)
+    
+    # Order categories logically
+    category_order = ["environment", "vehicle", "nature", "person", "animal", "sensor", "prop"]
+    
+    for category in category_order:
+        if category not in llm_data:
+            continue
+        assets = llm_data[category]
+        if not assets:
+            continue
+            
+        lines.append(f"### {category.upper()}")
+        
+        for asset in assets:
+            aid = asset["asset_id"]
+            tags = ", ".join(asset.get("tags", [])[:5])
+            
+            # Build extra info
+            extras = []
+            if asset.get("sensor_type"):
+                extras.append(f"sensor_type={asset['sensor_type']}")
+            if asset.get("fallback_for"):
+                extras.append(f"fallback_for=[{', '.join(asset['fallback_for'])}]")
+            
+            extra_str = f" ({', '.join(extras)})" if extras else ""
+            lines.append(f"- `{aid}`: tags=[{tags}]{extra_str}")
+        
+        lines.append("")
+    
+    # Add matching instructions
+    lines.append("### Matching Rules")
+    lines.append("1. Match user concepts (e.g. 'tractor') to asset tags")
+    lines.append("2. If no direct match, check fallback_for lists")
+    lines.append("3. For sensors, use the sensor_type field to pick (camera, imu, lidar)")
+    lines.append("4. NEVER invent asset_id values - use ONLY the IDs listed above")
+    lines.append("")
 
     return "\n".join(lines)
 

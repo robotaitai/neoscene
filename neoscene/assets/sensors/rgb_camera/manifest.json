@@ -2,11 +2,15 @@
   "asset_id": "rgb_camera",
   "name": "RGB Camera",
   "category": "sensor",
-  "tags": ["camera", "sensor", "vision", "rgb", "imaging"],
+  "tags": ["camera", "rgb", "vision", "imaging", "video"],
+  "fallback_for": ["webcam", "vision_sensor"],
+  "sensor_type": "camera",
+  "availability": "local",
+  "remote_url": null,
   "mjcf_include": "mjcf/rgb_camera.xml",
   "physical_size": [0.1, 0.1, 0.1],
   "placement_rules": {
-    "allow_on": ["robot", "mount", "tripod"],
+    "allow_on": ["robot", "vehicle", "mount", "tripod"],
     "min_clearance": 0.0
   },
   "semantics": {
@@ -14,4 +18,3 @@
     "usage": ["vision", "perception", "recording", "monitoring"]
   }
 }
-

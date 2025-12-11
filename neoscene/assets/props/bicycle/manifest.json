@@ -1,8 +1,12 @@
 {
   "asset_id": "bicycle",
   "name": "Bicycle",
-  "category": "prop",
-  "tags": ["bicycle", "bike", "cycle", "transport", "two-wheeler"],
+  "category": "vehicle",
+  "tags": ["bicycle", "bike", "cycle", "two_wheeler"],
+  "fallback_for": ["motorcycle", "scooter"],
+  "sensor_type": null,
+  "availability": "local",
+  "remote_url": null,
   "mjcf_include": "mjcf/bicycle.xml",
   "physical_size": [1.8, 0.5, 1.1],
   "placement_rules": {
@@ -14,4 +18,3 @@
     "usage": ["transportation", "recreation", "urban scenes"]
   }
 }
-

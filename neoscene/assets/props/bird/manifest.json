@@ -1,20 +1,20 @@
 {
   "asset_id": "bird",
   "name": "Bird",
-  "category": "prop",
+  "category": "animal",
   "tags": ["bird", "animal", "flying", "wildlife", "nature"],
+  "fallback_for": ["crow", "pigeon", "sparrow"],
+  "sensor_type": null,
+  "availability": "local",
+  "remote_url": null,
   "mjcf_include": "mjcf/bird.xml",
-  "physical_size": [0.3, 0.15, 0.12],
+  "physical_size": [0.2, 0.1, 0.15],
   "placement_rules": {
     "allow_on": ["ground", "tree", "perch"],
-    "min_clearance": 0.1
+    "min_clearance": 0.0
   },
   "semantics": {
-    "human_names": ["bird", "sparrow", "small bird", "songbird"],
-    "usage": ["decoration", "wildlife", "nature", "animation"]
-  },
-  "extra": {
-    "mesh_file": "meshes/12248_Bird_v1_L2.obj"
+    "human_names": ["bird", "flying bird", "wildlife"],
+    "usage": ["nature scene", "wildlife", "atmosphere"]
   }
 }
-

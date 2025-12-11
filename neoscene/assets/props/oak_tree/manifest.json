@@ -1,8 +1,12 @@
 {
   "asset_id": "oak_tree",
   "name": "Oak Tree",
-  "category": "prop",
-  "tags": ["tree", "oak", "deciduous", "nature", "forest", "shade"],
+  "category": "nature",
+  "tags": ["tree", "oak", "deciduous", "forest", "shade", "vegetation"],
+  "fallback_for": ["apple_tree", "fruit_tree", "orchard_tree"],
+  "sensor_type": null,
+  "availability": "local",
+  "remote_url": null,
   "mjcf_include": "mjcf/oak_tree.xml",
   "physical_size": [6.0, 6.0, 10.0],
   "placement_rules": {
@@ -11,7 +15,6 @@
   },
   "semantics": {
     "human_names": ["oak tree", "oak", "deciduous tree", "shade tree"],
-    "usage": ["forest", "park", "nature scene", "landscaping"]
+    "usage": ["forest", "park", "nature scene", "landscaping", "orchard"]
   }
 }
-
