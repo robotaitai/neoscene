@@ -1,0 +1,26 @@
+<mujoco>
+  <!-- Oak/Deciduous tree with round canopy -->
+  <asset>
+    <material name="oak_trunk" rgba="0.35 0.22 0.12 1"/>
+    <material name="oak_foliage" rgba="0.2 0.45 0.15 1"/>
+  </asset>
+  
+  <worldbody>
+    <body name="oak_tree_root">
+      <!-- Trunk -->
+      <geom name="trunk" type="cylinder" size="0.25 2.5" pos="0 0 2.5" material="oak_trunk"/>
+      
+      <!-- Main branches -->
+      <geom name="branch_1" type="capsule" size="0.08 0.8" pos="0.5 0 5.0" euler="0 45 0" material="oak_trunk"/>
+      <geom name="branch_2" type="capsule" size="0.08 0.8" pos="-0.5 0 5.0" euler="0 -45 0" material="oak_trunk"/>
+      
+      <!-- Canopy (spherical shape) -->
+      <geom name="canopy_center" type="sphere" size="2.5" pos="0 0 7.0" material="oak_foliage"/>
+      <geom name="canopy_left" type="sphere" size="1.8" pos="-1.5 0 6.5" material="oak_foliage"/>
+      <geom name="canopy_right" type="sphere" size="1.8" pos="1.5 0 6.5" material="oak_foliage"/>
+      <geom name="canopy_front" type="sphere" size="1.5" pos="0 1.5 6.5" material="oak_foliage"/>
+      <geom name="canopy_back" type="sphere" size="1.5" pos="0 -1.5 6.5" material="oak_foliage"/>
+    </body>
+  </worldbody>
+</mujoco>
+

@@ -1,0 +1,29 @@
+<mujoco>
+  <!-- Bicycle model -->
+  <asset>
+    <material name="bike_frame" rgba="0.1 0.4 0.7 1"/>
+    <material name="bike_wheel" rgba="0.2 0.2 0.2 1"/>
+    <material name="bike_seat" rgba="0.15 0.15 0.15 1"/>
+  </asset>
+  
+  <worldbody>
+    <body name="bicycle_root">
+      <!-- Frame tubes -->
+      <geom name="frame_top" type="capsule" size="0.02 0.35" pos="0 0 0.75" euler="0 15 0" material="bike_frame"/>
+      <geom name="frame_down" type="capsule" size="0.02 0.4" pos="0.15 0 0.5" euler="0 55 0" material="bike_frame"/>
+      <geom name="frame_seat" type="capsule" size="0.02 0.35" pos="-0.15 0 0.55" euler="0 -15 0" material="bike_frame"/>
+      
+      <!-- Handlebars -->
+      <geom name="handlebar" type="capsule" size="0.015 0.25" pos="0.5 0 0.95" euler="90 0 0" material="bike_frame"/>
+      <geom name="stem" type="capsule" size="0.015 0.15" pos="0.5 0 0.85" euler="0 0 0" material="bike_frame"/>
+      
+      <!-- Seat -->
+      <geom name="seat" type="box" size="0.1 0.06 0.03" pos="-0.35 0 0.9" material="bike_seat"/>
+      
+      <!-- Wheels -->
+      <geom name="front_wheel" type="cylinder" size="0.35 0.025" pos="0.6 0 0.35" euler="90 0 0" material="bike_wheel"/>
+      <geom name="rear_wheel" type="cylinder" size="0.35 0.025" pos="-0.6 0 0.35" euler="90 0 0" material="bike_wheel"/>
+    </body>
+  </worldbody>
+</mujoco>
+

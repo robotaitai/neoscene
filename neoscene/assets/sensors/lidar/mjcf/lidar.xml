@@ -1,0 +1,39 @@
+<mujoco>
+  <!-- LiDAR sensor with rangefinder sensors -->
+  <asset>
+    <material name="lidar_body" rgba="0.15 0.15 0.2 1"/>
+    <material name="lidar_dome" rgba="0.1 0.1 0.12 0.8"/>
+  </asset>
+  
+  <worldbody>
+    <body name="lidar_body">
+      <!-- Base -->
+      <geom name="lidar_base" type="cylinder" size="0.05 0.03" pos="0 0 0.03" material="lidar_body"/>
+      <!-- Dome -->
+      <geom name="lidar_dome" type="cylinder" size="0.04 0.05" pos="0 0 0.11" material="lidar_dome"/>
+      
+      <!-- Sites for rangefinder sensors (16-beam simulation) -->
+      <site name="lidar_site_0" pos="0 0 0.12" euler="0 -15 0"/>
+      <site name="lidar_site_1" pos="0 0 0.12" euler="0 -10 22.5"/>
+      <site name="lidar_site_2" pos="0 0 0.12" euler="0 -5 45"/>
+      <site name="lidar_site_3" pos="0 0 0.12" euler="0 0 67.5"/>
+      <site name="lidar_site_4" pos="0 0 0.12" euler="0 5 90"/>
+      <site name="lidar_site_5" pos="0 0 0.12" euler="0 10 112.5"/>
+      <site name="lidar_site_6" pos="0 0 0.12" euler="0 15 135"/>
+      <site name="lidar_site_7" pos="0 0 0.12" euler="0 10 157.5"/>
+    </body>
+  </worldbody>
+  
+  <sensor>
+    <!-- Rangefinder sensors for each beam direction -->
+    <rangefinder name="lidar_beam_0" site="lidar_site_0"/>
+    <rangefinder name="lidar_beam_1" site="lidar_site_1"/>
+    <rangefinder name="lidar_beam_2" site="lidar_site_2"/>
+    <rangefinder name="lidar_beam_3" site="lidar_site_3"/>
+    <rangefinder name="lidar_beam_4" site="lidar_site_4"/>
+    <rangefinder name="lidar_beam_5" site="lidar_site_5"/>
+    <rangefinder name="lidar_beam_6" site="lidar_site_6"/>
+    <rangefinder name="lidar_beam_7" site="lidar_site_7"/>
+  </sensor>
+</mujoco>
+

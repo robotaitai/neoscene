@@ -1,0 +1,26 @@
+<mujoco>
+  <!-- IMU sensor with accelerometer and gyroscope -->
+  <asset>
+    <material name="imu_chip" rgba="0.1 0.15 0.1 1"/>
+  </asset>
+  
+  <worldbody>
+    <body name="imu_body">
+      <!-- Small chip representation -->
+      <geom name="imu_chip" type="box" size="0.015 0.015 0.005" pos="0 0 0" material="imu_chip"/>
+      
+      <!-- Site for IMU sensors -->
+      <site name="imu_site" pos="0 0 0"/>
+    </body>
+  </worldbody>
+  
+  <sensor>
+    <!-- 3-axis accelerometer -->
+    <accelerometer name="imu_accel" site="imu_site"/>
+    <!-- 3-axis gyroscope -->
+    <gyro name="imu_gyro" site="imu_site"/>
+    <!-- Magnetometer (compass) -->
+    <magnetometer name="imu_mag" site="imu_site"/>
+  </sensor>
+</mujoco>
+

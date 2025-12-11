@@ -1,0 +1,23 @@
+<mujoco>
+  <!-- RGB Camera sensor with visual representation -->
+  <asset>
+    <material name="camera_body" rgba="0.2 0.2 0.25 1"/>
+    <material name="camera_lens" rgba="0.1 0.1 0.15 1"/>
+  </asset>
+  
+  <worldbody>
+    <body name="rgb_camera_body">
+      <!-- Camera housing -->
+      <geom name="camera_housing" type="box" size="0.04 0.03 0.03" pos="0 0 0" material="camera_body"/>
+      <!-- Lens -->
+      <geom name="camera_lens" type="cylinder" size="0.015 0.01" pos="0.05 0 0" euler="0 90 0" material="camera_lens"/>
+      
+      <!-- Site for attaching sensors -->
+      <site name="camera_site" pos="0.05 0 0" euler="0 0 0"/>
+      
+      <!-- The actual MuJoCo camera -->
+      <camera name="rgb_cam" pos="0.05 0 0" fovy="60"/>
+    </body>
+  </worldbody>
+</mujoco>
+

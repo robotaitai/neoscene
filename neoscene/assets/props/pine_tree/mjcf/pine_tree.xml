@@ -1,0 +1,22 @@
+<mujoco>
+  <!-- Pine/Conifer tree -->
+  <asset>
+    <material name="pine_trunk" rgba="0.4 0.25 0.15 1"/>
+    <material name="pine_foliage" rgba="0.1 0.35 0.15 1"/>
+  </asset>
+  
+  <worldbody>
+    <body name="pine_tree_root">
+      <!-- Trunk -->
+      <geom name="trunk" type="cylinder" size="0.15 2.0" pos="0 0 2.0" material="pine_trunk"/>
+      
+      <!-- Foliage layers (cone shape) -->
+      <geom name="foliage_1" type="cylinder" size="1.5 0.3" pos="0 0 3.5" material="pine_foliage"/>
+      <geom name="foliage_2" type="cylinder" size="1.2 0.4" pos="0 0 4.5" material="pine_foliage"/>
+      <geom name="foliage_3" type="cylinder" size="0.9 0.5" pos="0 0 5.5" material="pine_foliage"/>
+      <geom name="foliage_4" type="cylinder" size="0.6 0.5" pos="0 0 6.5" material="pine_foliage"/>
+      <geom name="foliage_5" type="cylinder" size="0.3 0.4" pos="0 0 7.3" material="pine_foliage"/>
+    </body>
+  </worldbody>
+</mujoco>
+
