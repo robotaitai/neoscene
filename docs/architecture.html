@@ -729,6 +729,80 @@ graph TB
     class MJCF_XML output
         </div>
 
+        <!-- ==================== TASK PLANNING ==================== -->
+        <h2>📋 Task & Path Planning</h2>
+        
+        <div class="description">
+            <h3>LLM-Driven Task Planning</h3>
+            <p>Users can ask the LLM to plan <span class="highlight-green">navigation tasks</span> using natural language. The LLM understands keywords like "task", "path", "route", "patrol", "coverage" and generates:</p>
+            <ul>
+                <li><span class="highlight-yellow">PathSpec</span> - A polyline of waypoints in world coordinates</li>
+                <li><span class="highlight-blue">TaskSpec</span> - A high-level behavior referencing a path</li>
+            </ul>
+            
+            <h4>Example Commands:</h4>
+            <table>
+                <tr>
+                    <th>User Says</th>
+                    <th>LLM Generates</th>
+                </tr>
+                <tr>
+                    <td>"Plan a row_coverage task to drive all orchard rows"</td>
+                    <td><code>row_coverage_path</code> (zig-zag waypoints) + <code>row_coverage</code> task</td>
+                </tr>
+                <tr>
+                    <td>"Add a perimeter patrol that loops continuously"</td>
+                    <td><code>boundary_path</code> (4 corners, loop=true) + <code>boundary_patrol</code> task (repeat=true)</td>
+                </tr>
+                <tr>
+                    <td>"Create a task to drive from origin to (20, 15)"</td>
+                    <td><code>goto_path</code> (2 waypoints) + <code>goto_task</code></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="mermaid">
+graph TB
+    subgraph USER_INPUT["User Request"]
+        PROMPT["'Plan a row_coverage task<br/>that drives all orchard rows'"]
+    end
+    
+    subgraph LLM_PROCESS["SceneAgent + LLM"]
+        DETECT["Detect task/path keywords"]
+        SYSTEM_PROMPT["System prompt includes:<br/>- PathSpec format<br/>- TaskSpec format<br/>- Coordinate system<br/>- Examples"]
+        GENERATE["LLM generates JSON"]
+    end
+    
+    subgraph SCENE_SPEC["Updated SceneSpec"]
+        PATHS["paths: [<br/>  {name: 'row_coverage_path',<br/>   waypoints: [{x:0,y:0},...],<br/>   loop: false}<br/>]"]
+        TASKS["tasks: [<br/>  {name: 'row_coverage',<br/>   type: 'path_follow',<br/>   path_name: 'row_coverage_path',<br/>   speed: 2.0}<br/>]"]
+    end
+    
+    subgraph VISUAL["Visual Output"]
+        PATH_GEOMS["Paths rendered as<br/>colored strips on ground"]
+        UI_PANEL["Tasks & Paths panel<br/>in web UI"]
+    end
+    
+    PROMPT --> DETECT
+    DETECT --> SYSTEM_PROMPT
+    SYSTEM_PROMPT --> GENERATE
+    GENERATE --> PATHS
+    GENERATE --> TASKS
+    
+    PATHS --> PATH_GEOMS
+    TASKS --> UI_PANEL
+    
+    classDef input fill:#3b82f6,color:#fff,stroke:#1d4ed8,stroke-width:2px
+    classDef process fill:#a855f7,color:#fff,stroke:#7c3aed,stroke-width:2px
+    classDef spec fill:#22c55e,color:#fff,stroke:#15803d,stroke-width:2px
+    classDef output fill:#f59e0b,color:#000,stroke:#d97706,stroke-width:2px
+    
+    class PROMPT input
+    class DETECT,SYSTEM_PROMPT,GENERATE process
+    class PATHS,TASKS spec
+    class PATH_GEOMS,UI_PANEL output
+        </div>
+
         <!-- ==================== API ENDPOINTS ==================== -->
         <h2>🌐 API Endpoints</h2>
         
