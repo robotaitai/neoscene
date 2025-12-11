@@ -224,8 +224,8 @@ def _parse_control_command(message: str) -> Optional[Dict[str, Any]]:
             return {"command": "start_task", "task_name": task_name}
         return {"command": "start_task", "task_name": None, "error": "No task name provided"}
     
-    # "stop task" or "stop"
-    if txt.startswith("stop task") or txt == "stop":
+    # "stop task" or "stop" or "stop driving"
+    if txt.startswith("stop task") or txt == "stop" or txt == "stop driving":
         return {"command": "stop_task"}
     
     # "run task <task_name>" (alias for start)
@@ -241,6 +241,10 @@ def _parse_control_command(message: str) -> Optional[Dict[str, Any]]:
         if len(parts) >= 2:
             task_name = parts[1].strip().strip('"\'')
             return {"command": "start_task", "task_name": task_name}
+    
+    # "start driving" / "go" / "drive" - start first available task
+    if txt in ("start driving", "go", "drive", "start", "begin"):
+        return {"command": "start_first_task"}
     
     return None
 
@@ -312,6 +316,32 @@ async def chat(req: ChatRequest):
                 session_id=session.session_id,
                 user_message=req.message,
                 assistant_message="⏹️ Stopped active task. The tractor is now idle.",
+                scene_spec=session.last_scene.model_dump() if session.last_scene else None,
+                scene_summary=session_manager.describe_scene(session),
+            )
+        
+        elif control_cmd["command"] == "start_first_task":
+            # Start the first available task
+            if not session.last_scene or not session.last_scene.tasks:
+                return ChatResponse(
+                    session_id=session.session_id,
+                    user_message=req.message,
+                    assistant_message="No tasks available. Use 'plan a task...' to create one first.",
+                    scene_spec=session.last_scene.model_dump() if session.last_scene else None,
+                    scene_summary=session_manager.describe_scene(session),
+                )
+            
+            task_name = session.last_scene.tasks[0].name
+            ok = session_manager.start_task(session.session_id, task_name)
+            if ok:
+                assistant_msg = f"🚀 Started task '{task_name}'. The tractor is now following the path. (Tip: Press Tab in viewer to hide menus)"
+            else:
+                assistant_msg = f"Could not start task '{task_name}'. Check if the path has valid waypoints."
+            
+            return ChatResponse(
+                session_id=session.session_id,
+                user_message=req.message,
+                assistant_message=assistant_msg,
                 scene_spec=session.last_scene.model_dump() if session.last_scene else None,
                 scene_summary=session_manager.describe_scene(session),
             )

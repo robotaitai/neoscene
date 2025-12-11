@@ -419,7 +419,7 @@ class SceneSessionManager:
         temp_file.close()
         session.temp_xml_path = Path(temp_file.name)
 
-        # 1) Launch viewer in subprocess
+        # 1) Launch viewer in subprocess with minimal UI
         viewer_script = f'''
 import mujoco
 import mujoco.viewer
@@ -429,6 +429,12 @@ model = mujoco.MjModel.from_xml_path("{session.temp_xml_path}")
 data = mujoco.MjData(model)
 
 with mujoco.viewer.launch_passive(model, data) as viewer:
+    # Hide UI panels for cleaner view
+    viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_JOINT] = False
+    viewer.cam.distance = 40.0  # Zoom out for better overview
+    viewer.cam.elevation = -30.0  # Top-down angle
+    viewer.cam.azimuth = 90.0  # Face forward
+    
     while viewer.is_running():
         mujoco.mj_step(model, data)
         viewer.sync()
