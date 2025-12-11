@@ -209,6 +209,42 @@ class HealthResponse(BaseModel):
 # =============================================================================
 
 
+def _parse_control_command(message: str) -> Optional[Dict[str, Any]]:
+    """Parse control commands like 'start task X' or 'stop task'.
+    
+    Returns dict with command info or None if not a control command.
+    """
+    txt = message.strip().lower()
+    
+    # "start task <task_name>"
+    if txt.startswith("start task"):
+        parts = txt.split(maxsplit=2)
+        if len(parts) >= 3:
+            task_name = parts[2].strip().strip('"\'')
+            return {"command": "start_task", "task_name": task_name}
+        return {"command": "start_task", "task_name": None, "error": "No task name provided"}
+    
+    # "stop task" or "stop"
+    if txt.startswith("stop task") or txt == "stop":
+        return {"command": "stop_task"}
+    
+    # "run task <task_name>" (alias for start)
+    if txt.startswith("run task"):
+        parts = txt.split(maxsplit=2)
+        if len(parts) >= 3:
+            task_name = parts[2].strip().strip('"\'')
+            return {"command": "start_task", "task_name": task_name}
+    
+    # "execute <task_name>" (alias for start)
+    if txt.startswith("execute"):
+        parts = txt.split(maxsplit=1)
+        if len(parts) >= 2:
+            task_name = parts[1].strip().strip('"\'')
+            return {"command": "start_task", "task_name": task_name}
+    
+    return None
+
+
 @app.post("/chat", response_model=ChatResponse, tags=["Chat"])
 async def chat(req: ChatRequest):
     """Chat-driven scene generation with memory.
@@ -216,9 +252,12 @@ async def chat(req: ChatRequest):
     Send a natural language message to create or modify a scene.
     The MuJoCo viewer will automatically launch/restart with the new scene.
 
-    - First message: Creates a new scene from scratch.
-    - Subsequent messages: Edits the existing scene incrementally.
-    - Say "start over" or "new scene" to reset.
+    Commands:
+    - "start task <name>" - Start executing a task
+    - "stop task" - Stop the currently running task
+    - "create/add/modify..." - Scene editing (uses LLM)
+    - "plan a task..." - Task planning (uses LLM to create paths/tasks)
+    - "start over" or "new scene" - Reset the scene
     """
     message = req.message.strip()
     if not message:
@@ -229,7 +268,55 @@ async def chat(req: ChatRequest):
 
     logger.info(f"[{session.session_id}] Chat: '{message[:100]}...'")
 
-    # Use update_scene_spec for incremental editing
+    # Check for control commands (start task, stop task)
+    control_cmd = _parse_control_command(message)
+    
+    if control_cmd:
+        # Handle control commands without calling LLM
+        if control_cmd["command"] == "start_task":
+            task_name = control_cmd.get("task_name")
+            if not task_name:
+                return ChatResponse(
+                    session_id=session.session_id,
+                    user_message=req.message,
+                    assistant_message="Please specify a task name: 'start task <name>'",
+                    scene_spec=session.last_scene.model_dump() if session.last_scene else None,
+                    scene_summary=session_manager.describe_scene(session),
+                )
+            
+            # Try to start the task
+            ok = session_manager.start_task(session.session_id, task_name)
+            if ok:
+                assistant_msg = f"🚀 Started task '{task_name}'. The tractor is now following the path."
+            else:
+                # List available tasks
+                available = []
+                if session.last_scene and session.last_scene.tasks:
+                    available = [t.name for t in session.last_scene.tasks]
+                if available:
+                    assistant_msg = f"Could not start task '{task_name}'. Available tasks: {', '.join(available)}"
+                else:
+                    assistant_msg = f"Could not start task '{task_name}'. No tasks defined. Use 'plan a task...' to create one."
+            
+            return ChatResponse(
+                session_id=session.session_id,
+                user_message=req.message,
+                assistant_message=assistant_msg,
+                scene_spec=session.last_scene.model_dump() if session.last_scene else None,
+                scene_summary=session_manager.describe_scene(session),
+            )
+        
+        elif control_cmd["command"] == "stop_task":
+            session_manager.stop_task(session.session_id)
+            return ChatResponse(
+                session_id=session.session_id,
+                user_message=req.message,
+                assistant_message="⏹️ Stopped active task. The tractor is now idle.",
+                scene_spec=session.last_scene.model_dump() if session.last_scene else None,
+                scene_summary=session_manager.describe_scene(session),
+            )
+
+    # Not a control command - use LLM for scene editing / task planning
     try:
         spec = agent.update_scene_spec(session.last_scene, message)
     except SceneGenerationError as e:
@@ -242,11 +329,23 @@ async def chat(req: ChatRequest):
 
     # Prepare assistant message (short summary)
     summary = session_manager.describe_scene(session)
+    
+    # Include task/path info if present
+    path_count = len(spec.paths)
+    task_count = len(spec.tasks)
+    extra_info = ""
+    if path_count > 0 or task_count > 0:
+        extra_info = f" Paths: {path_count}, tasks: {task_count}."
+        if task_count > 0:
+            task_names = [t.name for t in spec.tasks]
+            extra_info += f" Use 'start task {task_names[0]}' to execute."
+    
     assistant_msg = (
         f"Updated scene '{summary.get('scene_name', 'unnamed')}'. "
         f"{summary.get('object_count', 0)} object(s), "
         f"{summary.get('camera_count', 0)} camera(s), "
         f"environment: {summary.get('environment_asset_id', 'unknown')}."
+        f"{extra_info}"
     )
 
     logger.info(f"[{session.session_id}] Generated: {summary.get('scene_name')}")

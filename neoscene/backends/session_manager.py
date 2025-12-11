@@ -37,11 +37,13 @@ class SimulationWorker:
     latest_sensors: dict = field(default_factory=dict)
     latest_image: Optional[np.ndarray] = None
     navigator_status: dict = field(default_factory=dict)
+    task_status: dict = field(default_factory=dict)
     _model: object = None
     _data: object = None
     _renderer: object = None
     _render_error_logged: bool = False
     _navigator: object = None  # RowNavigator when in orchard mode
+    _task_runner: object = None  # TaskRunner for path following
     
     def start(self):
         """Initialize MuJoCo model and data."""
@@ -50,10 +52,45 @@ class SimulationWorker:
         self._data = mujoco.MjData(self._model)
         self.running = True
         
-        # Check if we have trees - if so, enable row navigator
+        # Initialize TaskRunner for path following
+        self._init_task_runner()
+        
+        # Check if we have trees - if so, enable row navigator (fallback when no task)
         self._init_navigator()
         
-        logger.info(f"SimWorker started: ncam={self._model.ncam}, nsensor={self._model.nsensor}, navigator={'active' if self._navigator else 'off'}")
+        logger.info(f"SimWorker started: ncam={self._model.ncam}, nsensor={self._model.nsensor}, navigator={'active' if self._navigator else 'off'}, task_runner={'ready' if self._task_runner else 'off'}")
+    
+    def _init_task_runner(self):
+        """Initialize TaskRunner for path-following tasks."""
+        try:
+            from neoscene.backends.task_runner import TaskRunner
+            self._task_runner = TaskRunner(self._model, self._data)
+            logger.debug("TaskRunner initialized")
+        except Exception as e:
+            logger.warning(f"Failed to init TaskRunner: {e}")
+            self._task_runner = None
+    
+    def set_scene(self, scene: SceneSpec):
+        """Update the scene reference for the task runner."""
+        if self._task_runner:
+            self._task_runner.set_scene(scene)
+    
+    def start_task(self, task_name: str) -> bool:
+        """Start a task by name. Returns True if successful."""
+        if self._task_runner:
+            return self._task_runner.start_task(task_name)
+        return False
+    
+    def stop_task(self):
+        """Stop the currently active task."""
+        if self._task_runner:
+            self._task_runner.stop_task()
+    
+    def get_task_status(self) -> dict:
+        """Get current task execution status."""
+        if self._task_runner:
+            return self._task_runner.get_status()
+        return {"active": False}
     
     def _init_navigator(self):
         """Initialize row navigator if trees are present."""
@@ -103,8 +140,12 @@ class SimulationWorker:
     def _apply_controls(self):
         """Apply control inputs to actuators for motion.
         
-        If RowNavigator is active: use autonomous navigation
-        Otherwise: simple demo motion for wheels and walking gait for humans
+        Priority:
+        1. If TaskRunner has an active task: use TaskRunner controls
+        2. Else if RowNavigator is active: use autonomous navigation
+        3. Otherwise: simple demo motion for wheels
+        
+        Human walking gait is always applied separately.
         """
         import mujoco
         import math
@@ -114,10 +155,20 @@ class SimulationWorker:
         dt = m.opt.timestep
         t = d.time
         
-        # Use row navigator for tractor if available
-        if self._navigator is not None:
+        tractor_controlled = False
+        
+        # Priority 1: TaskRunner (user-triggered path following)
+        if self._task_runner is not None and self._task_runner.is_active():
+            self._task_runner.step(dt)
+            self.task_status = self._task_runner.get_status()
+            tractor_controlled = True
+        else:
+            self.task_status = {"active": False}
+        
+        # Priority 2: RowNavigator (autonomous orchard navigation, when no task)
+        if not tractor_controlled and self._navigator is not None:
             v, omega = self._navigator.step(m, d, dt)
-            # Apply controls manually with debug
+            # Apply controls manually
             wheelbase = 1.5
             v_left = v - 0.5 * wheelbase * omega
             v_right = v + 0.5 * wheelbase * omega
@@ -138,8 +189,10 @@ class SimulationWorker:
                         d.ctrl[i] = v_right
             
             self.navigator_status = self._navigator.get_status()
-        else:
-            # Fallback: simple forward motion for all motors
+            tractor_controlled = True
+        
+        # Priority 3: Fallback - simple forward motion if no other controller
+        if not tractor_controlled:
             for i in range(m.nu):
                 name = mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_ACTUATOR, i)
                 if not name:
@@ -147,7 +200,7 @@ class SimulationWorker:
                 name_lower = name.lower()
                 
                 if 'motor' in name_lower or 'drive' in name_lower:
-                    d.ctrl[i] = 3.0  # Forward at ~1 m/s
+                    d.ctrl[i] = 2.0  # Forward at ~1 m/s
         
         # Human walking gait (always active for any humans)
         for i in range(m.nu):
@@ -187,8 +240,14 @@ class SimulationWorker:
             else:
                 sensors[name] = [float(d.sensordata[start + i]) for i in range(dim)]
         
-        # Add navigator status if active
-        if self._navigator is not None:
+        # Add task status if active
+        if self._task_runner is not None and self.task_status.get("active"):
+            ts = self.task_status
+            sensors["_task_name"] = ts.get("task_name", "")
+            sensors["_task_waypoint"] = f"{ts.get('waypoint_index', 0)}/{ts.get('total_waypoints', 0)}"
+            sensors["_task_distance"] = ts.get("distance_traveled", 0.0)
+        elif self._navigator is not None:
+            # Fallback to navigator status if no task active
             nav = self.navigator_status
             sensors["_nav_state"] = nav.get("state", "OFF")
             sensors["_nav_row"] = nav.get("row", 0)
@@ -392,8 +451,13 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
             session.sim_worker = worker
             session.sim_thread = sim_thread
             sim_thread.start()
-        except Exception:
-            pass
+            
+            # Give worker time to initialize, then set scene for TaskRunner
+            time.sleep(0.2)
+            if session.sim_worker and session.sim_worker.running:
+                session.sim_worker.set_scene(scene)
+        except Exception as e:
+            logger.warning(f"Failed to start sim worker: {e}")
 
     def describe_scene(self, session: SceneSession) -> dict:
         """Return a small dict summary of the current scene for frontend.
@@ -448,6 +512,37 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
         if not session or not session.sim_worker:
             return None
         return session.sim_worker.latest_image
+    
+    def start_task(self, session_id: str, task_name: str) -> bool:
+        """Start a task by name for a session.
+        
+        Args:
+            session_id: The session ID.
+            task_name: Name of the task to start.
+            
+        Returns:
+            True if task was started successfully, False otherwise.
+        """
+        session = self.get_session(session_id)
+        if not session or not session.sim_worker or not session.last_scene:
+            return False
+        
+        # Ensure TaskRunner has the current scene
+        session.sim_worker.set_scene(session.last_scene)
+        return session.sim_worker.start_task(task_name)
+    
+    def stop_task(self, session_id: str) -> None:
+        """Stop the active task for a session."""
+        session = self.get_session(session_id)
+        if session and session.sim_worker:
+            session.sim_worker.stop_task()
+    
+    def get_task_status(self, session_id: str) -> dict:
+        """Get current task status for a session."""
+        session = self.get_session(session_id)
+        if not session or not session.sim_worker:
+            return {"active": False}
+        return session.sim_worker.get_task_status()
 
     def cleanup(self) -> None:
         """Clean up all sessions and their viewers."""
