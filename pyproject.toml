@@ -21,6 +21,8 @@ dependencies = [
     "python-dotenv",
     "pyyaml",
     "google-generativeai",
+    "opencv-python-headless",
+    "numpy",
 ]
 
 [project.optional-dependencies]

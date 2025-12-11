@@ -67,5 +67,6 @@ Thumbs.db
 # Project-specific
 *.log
 
-*.xml
+# Temp MuJoCo XML (keep asset MJCF files)
 neoscene_*.xml
+!neoscene/assets/**/mjcf/*.xml
