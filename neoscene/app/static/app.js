@@ -2,6 +2,7 @@
 
 let currentSessionId = null;
 let worldRevisions = [];  // list of scene_spec snapshots for this tab
+let currentCameras = [];  // list of camera descriptors from SceneSpec
 
 // ============================================
 // Message Handling
@@ -151,6 +152,9 @@ function updateWorldModel(scene) {
   const camCount = Array.isArray(scene.cameras) ? scene.cameras.length : 0;
   html += `<div style="margin-top:6px;"><strong>Cameras:</strong> ${camCount}</div>`;
 
+  // Keep the full camera list for the camera panel
+  currentCameras = Array.isArray(scene.cameras) ? scene.cameras : [];
+
   summaryEl.innerHTML = html;
 
   // raw JSON
@@ -241,30 +245,49 @@ async function sendMessage() {
 // ============================================
 
 function updateSensors() {
-  if (!currentSessionId) return;
-  
+  const el = document.getElementById("sensor-panel");
+  if (!el) return;
+
+  if (!currentSessionId) {
+    el.innerHTML = '<div class="no-data">No scene loaded.</div>';
+    return;
+  }
+
   fetch("/sensors/" + currentSessionId)
     .then((r) => r.json())
     .then((data) => {
-      const el = document.getElementById("sensor-panel");
-      if (!data.ok || Object.keys(data.sensors).length === 0) {
-        el.innerHTML = '<span class="no-data">No sensors available</span>';
+      const sensors = data.ok ? data.sensors || {} : {};
+      const names = Object.keys(sensors);
+
+      if (names.length === 0) {
+        el.innerHTML = '<div class="no-data">No sensors in current scene.</div>';
         return;
       }
-      
-      const sensors = data.sensors || {};
-      const lines = Object.entries(sensors).map(([name, val]) => {
+
+      // One "window" per sensor in a grid
+      const cards = names.map((name) => {
+        const val = sensors[name];
         let displayVal;
         if (Array.isArray(val)) {
           displayVal = val.map(v => v.toFixed(2)).join(", ");
+        } else if (typeof val === "number") {
+          displayVal = val.toFixed(4);
         } else {
-          displayVal = val.toFixed(3);
+          displayVal = JSON.stringify(val);
         }
-        return `<div class="sensor-row"><span class="sensor-name">${name}</span><span class="sensor-value">${displayVal}</span></div>`;
+        return `
+          <div class="sensor-card">
+            <div class="sensor-name"><code>${name}</code></div>
+            <div class="sensor-value">${displayVal}</div>
+          </div>
+        `;
       });
-      el.innerHTML = lines.join("");
+
+      el.innerHTML = `<div class="sensor-grid">${cards.join("")}</div>`;
     })
-    .catch(() => {});
+    .catch(() => {
+      el.innerHTML = '<div class="no-data" style="color:#f87171;">Error reading sensors.</div>';
+    });
 }
 
 // ============================================
@@ -272,24 +295,49 @@ function updateSensors() {
 // ============================================
 
 function updateCamera() {
-  if (!currentSessionId) return;
+  const container = document.getElementById("camera-panel-body");
+  const noText = document.getElementById("camera-no-text");
+  if (!container || !noText) return;
+
+  // No session or no cameras in scene
+  if (!currentSessionId || currentCameras.length === 0) {
+    container.innerHTML = "";
+    noText.style.display = "block";
+    noText.textContent = currentSessionId 
+      ? "No camera in current scene." 
+      : "No scene loaded.";
+    return;
+  }
+
+  // Show the first camera (we can extend to multiple later)
+  const cam = currentCameras[0];
+  const camName = cam.name || cam.asset_id || "camera_0";
+
+  noText.style.display = "none";
   
-  const img = document.getElementById("camera-view");
-  const placeholder = document.getElementById("camera-placeholder");
+  // Build camera card if not already there
+  let img = document.getElementById("camera-view");
+  if (!img) {
+    container.innerHTML = `
+      <div class="camera-card">
+        <div class="camera-label"><code>${camName}</code></div>
+        <img id="camera-view" class="camera-img" alt="camera feed" />
+      </div>
+    `;
+    img = document.getElementById("camera-view");
+  }
+
+  // Update the image source with cache-buster
+  const newSrc = `/camera/${currentSessionId}?t=${Date.now()}`;
   
-  // Simple cache-buster to force reload
-  const newSrc = "/camera/" + currentSessionId + "?t=" + Date.now();
-  
-  // Create a temporary image to test if camera is available
+  // Test if image loads, then display
   const testImg = new Image();
   testImg.onload = function() {
     img.src = newSrc;
     img.style.display = "block";
-    placeholder.style.display = "none";
   };
   testImg.onerror = function() {
-    img.style.display = "none";
-    placeholder.style.display = "block";
+    // Camera might not be rendered yet, keep trying
   };
   testImg.src = newSrc;
 }

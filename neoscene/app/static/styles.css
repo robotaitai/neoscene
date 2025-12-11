@@ -364,58 +364,86 @@ body {
 
 /* Sensors Panel */
 .sensor-panel {
-  max-height: 150px;
+  max-height: 180px;
 }
 
 .sensor-body {
-  max-height: 110px;
+  max-height: 140px;
   overflow-y: auto;
-  font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
-  font-size: 11px;
 }
 
-.sensor-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 3px 0;
-  border-bottom: 1px solid #0f172a;
+.sensor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 6px;
 }
 
-.sensor-row:last-child {
-  border-bottom: none;
+.sensor-card {
+  border-radius: 6px;
+  border: 1px solid #1f2937;
+  padding: 6px 8px;
+  background: linear-gradient(180deg, #0f172a 0%, #020617 100%);
 }
 
 .sensor-name {
+  font-size: 10px;
+  color: #6b7280;
+  margin-bottom: 2px;
+}
+
+.sensor-name code {
   color: #7dd3fc;
+  background: transparent;
+  padding: 0;
 }
 
 .sensor-value {
+  font-size: 13px;
   color: #34d399;
-  font-weight: 500;
+  font-weight: 600;
+  font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
 }
 
 /* Camera Panel */
 .camera-panel {
-  min-height: 100px;
+  min-height: 120px;
 }
 
 .camera-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   min-height: 80px;
 }
 
-.camera-body img {
-  max-width: 100%;
+.camera-card {
   border-radius: 6px;
   border: 1px solid #1f2937;
+  background: #010409;
+  overflow: hidden;
+}
+
+.camera-label {
+  padding: 4px 8px;
+  font-size: 10px;
+  color: #6b7280;
+  border-bottom: 1px solid #1f2937;
+  background: #0f172a;
+}
+
+.camera-label code {
+  color: #7dd3fc;
+  background: transparent;
+  padding: 0;
+}
+
+.camera-img {
+  width: 100%;
+  display: block;
 }
 
 .no-data {
   color: #4b5563;
   font-size: 11px;
   font-style: italic;
+  padding: 8px 0;
 }
 
 /* Ops Log */
