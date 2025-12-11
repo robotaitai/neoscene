@@ -67,3 +67,5 @@ Thumbs.db
 # Project-specific
 *.log
 
+*.xml
+neoscene_*.xml
