@@ -1,0 +1,512 @@
+<mujoco model="orchard_scene">
+  <compiler angle="radian"/>
+
+  <option integrator="implicitfast" iterations="50"/>
+
+  <visual>
+    <headlight ambient="0.3 0.3 0.3" diffuse="0.6 0.6 0.6"/>
+  </visual>
+
+  <asset>
+    <texture type="2d" colorspace="auto" name="grid" builtin="checker" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" width="512" height="512"/>
+    <material name="grid_mat" texture="grid" texrepeat="8 8" reflectance="0.2"/>
+  </asset>
+
+  <worldbody>
+    <camera name="top_down_view" pos="0 0 20" quat="0.707107 0 0.707107 0"/>
+    <light name="default_light" pos="0 0 10" dir="0 0 -1" diffuse="1 1 1"/>
+    <body name="env_orchard">
+      <geom name="env_orchard_ground" size="50 50 0.1" type="plane" rgba="0.4 0.6 0.3 1"/>
+    </body>
+    <body name="trees_r0_c0" pos="-13.5 -25 0">
+      <geom name="trees_r0_c0_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r0_c0_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r0_c1" pos="-10.5 -25 0">
+      <geom name="trees_r0_c1_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r0_c1_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r0_c2" pos="-7.5 -25 0">
+      <geom name="trees_r0_c2_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r0_c2_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r0_c3" pos="-4.5 -25 0">
+      <geom name="trees_r0_c3_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r0_c3_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r0_c4" pos="-1.5 -25 0">
+      <geom name="trees_r0_c4_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r0_c4_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r0_c5" pos="1.5 -25 0">
+      <geom name="trees_r0_c5_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r0_c5_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r0_c6" pos="4.5 -25 0">
+      <geom name="trees_r0_c6_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r0_c6_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r0_c7" pos="7.5 -25 0">
+      <geom name="trees_r0_c7_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r0_c7_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r0_c8" pos="10.5 -25 0">
+      <geom name="trees_r0_c8_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r0_c8_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r0_c9" pos="13.5 -25 0">
+      <geom name="trees_r0_c9_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r0_c9_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r0_c10" pos="16.5 -25 0">
+      <geom name="trees_r0_c10_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r0_c10_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r0_c11" pos="19.5 -25 0">
+      <geom name="trees_r0_c11_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r0_c11_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r1_c0" pos="-13.5 -20 0">
+      <geom name="trees_r1_c0_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r1_c0_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r1_c1" pos="-10.5 -20 0">
+      <geom name="trees_r1_c1_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r1_c1_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r1_c2" pos="-7.5 -20 0">
+      <geom name="trees_r1_c2_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r1_c2_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r1_c3" pos="-4.5 -20 0">
+      <geom name="trees_r1_c3_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r1_c3_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r1_c4" pos="-1.5 -20 0">
+      <geom name="trees_r1_c4_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r1_c4_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r1_c5" pos="1.5 -20 0">
+      <geom name="trees_r1_c5_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r1_c5_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r1_c6" pos="4.5 -20 0">
+      <geom name="trees_r1_c6_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r1_c6_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r1_c7" pos="7.5 -20 0">
+      <geom name="trees_r1_c7_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r1_c7_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r1_c8" pos="10.5 -20 0">
+      <geom name="trees_r1_c8_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r1_c8_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r1_c9" pos="13.5 -20 0">
+      <geom name="trees_r1_c9_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r1_c9_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r1_c10" pos="16.5 -20 0">
+      <geom name="trees_r1_c10_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r1_c10_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r1_c11" pos="19.5 -20 0">
+      <geom name="trees_r1_c11_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r1_c11_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r2_c0" pos="-13.5 -15 0">
+      <geom name="trees_r2_c0_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r2_c0_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r2_c1" pos="-10.5 -15 0">
+      <geom name="trees_r2_c1_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r2_c1_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r2_c2" pos="-7.5 -15 0">
+      <geom name="trees_r2_c2_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r2_c2_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r2_c3" pos="-4.5 -15 0">
+      <geom name="trees_r2_c3_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r2_c3_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r2_c4" pos="-1.5 -15 0">
+      <geom name="trees_r2_c4_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r2_c4_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r2_c5" pos="1.5 -15 0">
+      <geom name="trees_r2_c5_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r2_c5_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r2_c6" pos="4.5 -15 0">
+      <geom name="trees_r2_c6_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r2_c6_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r2_c7" pos="7.5 -15 0">
+      <geom name="trees_r2_c7_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r2_c7_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r2_c8" pos="10.5 -15 0">
+      <geom name="trees_r2_c8_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r2_c8_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r2_c9" pos="13.5 -15 0">
+      <geom name="trees_r2_c9_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r2_c9_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r2_c10" pos="16.5 -15 0">
+      <geom name="trees_r2_c10_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r2_c10_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r2_c11" pos="19.5 -15 0">
+      <geom name="trees_r2_c11_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r2_c11_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r3_c0" pos="-13.5 -10 0">
+      <geom name="trees_r3_c0_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r3_c0_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r3_c1" pos="-10.5 -10 0">
+      <geom name="trees_r3_c1_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r3_c1_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r3_c2" pos="-7.5 -10 0">
+      <geom name="trees_r3_c2_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r3_c2_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r3_c3" pos="-4.5 -10 0">
+      <geom name="trees_r3_c3_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r3_c3_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r3_c4" pos="-1.5 -10 0">
+      <geom name="trees_r3_c4_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r3_c4_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r3_c5" pos="1.5 -10 0">
+      <geom name="trees_r3_c5_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r3_c5_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r3_c6" pos="4.5 -10 0">
+      <geom name="trees_r3_c6_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r3_c6_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r3_c7" pos="7.5 -10 0">
+      <geom name="trees_r3_c7_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r3_c7_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r3_c8" pos="10.5 -10 0">
+      <geom name="trees_r3_c8_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r3_c8_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r3_c9" pos="13.5 -10 0">
+      <geom name="trees_r3_c9_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r3_c9_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r3_c10" pos="16.5 -10 0">
+      <geom name="trees_r3_c10_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r3_c10_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r3_c11" pos="19.5 -10 0">
+      <geom name="trees_r3_c11_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r3_c11_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r4_c0" pos="-13.5 -5 0">
+      <geom name="trees_r4_c0_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r4_c0_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r4_c1" pos="-10.5 -5 0">
+      <geom name="trees_r4_c1_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r4_c1_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r4_c2" pos="-7.5 -5 0">
+      <geom name="trees_r4_c2_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r4_c2_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r4_c3" pos="-4.5 -5 0">
+      <geom name="trees_r4_c3_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r4_c3_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r4_c4" pos="-1.5 -5 0">
+      <geom name="trees_r4_c4_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r4_c4_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r4_c5" pos="1.5 -5 0">
+      <geom name="trees_r4_c5_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r4_c5_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r4_c6" pos="4.5 -5 0">
+      <geom name="trees_r4_c6_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r4_c6_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r4_c7" pos="7.5 -5 0">
+      <geom name="trees_r4_c7_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r4_c7_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r4_c8" pos="10.5 -5 0">
+      <geom name="trees_r4_c8_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r4_c8_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r4_c9" pos="13.5 -5 0">
+      <geom name="trees_r4_c9_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r4_c9_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r4_c10" pos="16.5 -5 0">
+      <geom name="trees_r4_c10_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r4_c10_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r4_c11" pos="19.5 -5 0">
+      <geom name="trees_r4_c11_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r4_c11_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r5_c0" pos="-13.5 0 0">
+      <geom name="trees_r5_c0_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r5_c0_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r5_c1" pos="-10.5 0 0">
+      <geom name="trees_r5_c1_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r5_c1_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r5_c2" pos="-7.5 0 0">
+      <geom name="trees_r5_c2_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r5_c2_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r5_c3" pos="-4.5 0 0">
+      <geom name="trees_r5_c3_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r5_c3_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r5_c4" pos="-1.5 0 0">
+      <geom name="trees_r5_c4_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r5_c4_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r5_c5" pos="1.5 0 0">
+      <geom name="trees_r5_c5_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r5_c5_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r5_c6" pos="4.5 0 0">
+      <geom name="trees_r5_c6_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r5_c6_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r5_c7" pos="7.5 0 0">
+      <geom name="trees_r5_c7_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r5_c7_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r5_c8" pos="10.5 0 0">
+      <geom name="trees_r5_c8_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r5_c8_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r5_c9" pos="13.5 0 0">
+      <geom name="trees_r5_c9_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r5_c9_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r5_c10" pos="16.5 0 0">
+      <geom name="trees_r5_c10_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r5_c10_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r5_c11" pos="19.5 0 0">
+      <geom name="trees_r5_c11_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r5_c11_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r6_c0" pos="-13.5 5 0">
+      <geom name="trees_r6_c0_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r6_c0_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r6_c1" pos="-10.5 5 0">
+      <geom name="trees_r6_c1_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r6_c1_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r6_c2" pos="-7.5 5 0">
+      <geom name="trees_r6_c2_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r6_c2_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r6_c3" pos="-4.5 5 0">
+      <geom name="trees_r6_c3_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r6_c3_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r6_c4" pos="-1.5 5 0">
+      <geom name="trees_r6_c4_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r6_c4_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r6_c5" pos="1.5 5 0">
+      <geom name="trees_r6_c5_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r6_c5_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r6_c6" pos="4.5 5 0">
+      <geom name="trees_r6_c6_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r6_c6_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r6_c7" pos="7.5 5 0">
+      <geom name="trees_r6_c7_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r6_c7_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r6_c8" pos="10.5 5 0">
+      <geom name="trees_r6_c8_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r6_c8_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r6_c9" pos="13.5 5 0">
+      <geom name="trees_r6_c9_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r6_c9_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r6_c10" pos="16.5 5 0">
+      <geom name="trees_r6_c10_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r6_c10_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r6_c11" pos="19.5 5 0">
+      <geom name="trees_r6_c11_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r6_c11_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r7_c0" pos="-13.5 10 0">
+      <geom name="trees_r7_c0_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r7_c0_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r7_c1" pos="-10.5 10 0">
+      <geom name="trees_r7_c1_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r7_c1_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r7_c2" pos="-7.5 10 0">
+      <geom name="trees_r7_c2_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r7_c2_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r7_c3" pos="-4.5 10 0">
+      <geom name="trees_r7_c3_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r7_c3_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r7_c4" pos="-1.5 10 0">
+      <geom name="trees_r7_c4_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r7_c4_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r7_c5" pos="1.5 10 0">
+      <geom name="trees_r7_c5_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r7_c5_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r7_c6" pos="4.5 10 0">
+      <geom name="trees_r7_c6_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r7_c6_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r7_c7" pos="7.5 10 0">
+      <geom name="trees_r7_c7_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r7_c7_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r7_c8" pos="10.5 10 0">
+      <geom name="trees_r7_c8_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r7_c8_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r7_c9" pos="13.5 10 0">
+      <geom name="trees_r7_c9_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r7_c9_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r7_c10" pos="16.5 10 0">
+      <geom name="trees_r7_c10_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r7_c10_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r7_c11" pos="19.5 10 0">
+      <geom name="trees_r7_c11_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r7_c11_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r8_c0" pos="-13.5 15 0">
+      <geom name="trees_r8_c0_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r8_c0_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r8_c1" pos="-10.5 15 0">
+      <geom name="trees_r8_c1_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r8_c1_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r8_c2" pos="-7.5 15 0">
+      <geom name="trees_r8_c2_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r8_c2_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r8_c3" pos="-4.5 15 0">
+      <geom name="trees_r8_c3_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r8_c3_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r8_c4" pos="-1.5 15 0">
+      <geom name="trees_r8_c4_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r8_c4_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r8_c5" pos="1.5 15 0">
+      <geom name="trees_r8_c5_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r8_c5_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r8_c6" pos="4.5 15 0">
+      <geom name="trees_r8_c6_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r8_c6_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r8_c7" pos="7.5 15 0">
+      <geom name="trees_r8_c7_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r8_c7_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r8_c8" pos="10.5 15 0">
+      <geom name="trees_r8_c8_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r8_c8_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r8_c9" pos="13.5 15 0">
+      <geom name="trees_r8_c9_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r8_c9_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r8_c10" pos="16.5 15 0">
+      <geom name="trees_r8_c10_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r8_c10_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r8_c11" pos="19.5 15 0">
+      <geom name="trees_r8_c11_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r8_c11_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r9_c0" pos="-13.5 20 0">
+      <geom name="trees_r9_c0_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r9_c0_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r9_c1" pos="-10.5 20 0">
+      <geom name="trees_r9_c1_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r9_c1_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r9_c2" pos="-7.5 20 0">
+      <geom name="trees_r9_c2_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r9_c2_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r9_c3" pos="-4.5 20 0">
+      <geom name="trees_r9_c3_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r9_c3_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r9_c4" pos="-1.5 20 0">
+      <geom name="trees_r9_c4_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r9_c4_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r9_c5" pos="1.5 20 0">
+      <geom name="trees_r9_c5_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r9_c5_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r9_c6" pos="4.5 20 0">
+      <geom name="trees_r9_c6_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r9_c6_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r9_c7" pos="7.5 20 0">
+      <geom name="trees_r9_c7_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r9_c7_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r9_c8" pos="10.5 20 0">
+      <geom name="trees_r9_c8_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r9_c8_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r9_c9" pos="13.5 20 0">
+      <geom name="trees_r9_c9_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r9_c9_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r9_c10" pos="16.5 20 0">
+      <geom name="trees_r9_c10_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r9_c10_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="trees_r9_c11" pos="19.5 20 0">
+      <geom name="trees_r9_c11_tree_trunk" size="0.3 4" pos="0 0 4" type="cylinder" rgba="0.4 0.25 0.1 1"/>
+      <geom name="trees_r9_c11_tree_foliage" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+    </body>
+    <body name="tractor_red_0" pos="-12 -22.5 0.5">
+      <geom name="tractor_red_0_chassis" size="2.2 1.1 0.6" type="box" mass="1200" rgba="0.85 0.15 0.1 1"/>
+      <geom name="tractor_red_0_cabin" size="0.9 0.9 0.7" pos="-0.4 0 0.9" type="box" mass="300" rgba="0.2 0.2 0.2 1"/>
+      <geom name="tractor_red_0_hood" size="1 0.8 0.3" pos="1.2 0 0.2" type="box" mass="100" rgba="0.85 0.15 0.1 1"/>
+      <geom name="tractor_red_0_exhaust" size="0.08 0.5" pos="0.8 0.6 1" type="cylinder" rgba="0.3 0.3 0.3 1"/>
+      <geom name="tractor_red_0_wheel_fl" size="0.5 0.25" pos="1.6 1.2 -0.4" quat="0.707107 0.707107 0 0" type="cylinder" rgba="0.15 0.15 0.15 1"/>
+      <geom name="tractor_red_0_wheel_fr" size="0.5 0.25" pos="1.6 -1.2 -0.4" quat="0.707107 0.707107 0 0" type="cylinder" rgba="0.15 0.15 0.15 1"/>
+      <geom name="tractor_red_0_wheel_rl" size="0.75 0.35" pos="-1.3 1.3 -0.25" quat="0.707107 0.707107 0 0" type="cylinder" rgba="0.15 0.15 0.15 1"/>
+      <geom name="tractor_red_0_wheel_rr" size="0.75 0.35" pos="-1.3 -1.3 -0.25" quat="0.707107 0.707107 0 0" type="cylinder" rgba="0.15 0.15 0.15 1"/>
+    </body>
+  </worldbody>
+</mujoco>

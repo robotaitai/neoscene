@@ -197,6 +197,64 @@ async function sendMessage() {
 }
 
 // ============================================
+// Sensor Polling
+// ============================================
+
+function updateSensors() {
+  if (!currentSessionId) return;
+  
+  fetch("/sensors/" + currentSessionId)
+    .then((r) => r.json())
+    .then((data) => {
+      const el = document.getElementById("sensor-panel");
+      if (!data.ok || Object.keys(data.sensors).length === 0) {
+        el.innerHTML = '<span class="no-data">No sensors available</span>';
+        return;
+      }
+      
+      const sensors = data.sensors || {};
+      const lines = Object.entries(sensors).map(([name, val]) => {
+        let displayVal;
+        if (Array.isArray(val)) {
+          displayVal = val.map(v => v.toFixed(2)).join(", ");
+        } else {
+          displayVal = val.toFixed(3);
+        }
+        return `<div class="sensor-row"><span class="sensor-name">${name}</span><span class="sensor-value">${displayVal}</span></div>`;
+      });
+      el.innerHTML = lines.join("");
+    })
+    .catch(() => {});
+}
+
+// ============================================
+// Camera Polling
+// ============================================
+
+function updateCamera() {
+  if (!currentSessionId) return;
+  
+  const img = document.getElementById("camera-view");
+  const placeholder = document.getElementById("camera-placeholder");
+  
+  // Simple cache-buster to force reload
+  const newSrc = "/camera/" + currentSessionId + "?t=" + Date.now();
+  
+  // Create a temporary image to test if camera is available
+  const testImg = new Image();
+  testImg.onload = function() {
+    img.src = newSrc;
+    img.style.display = "block";
+    placeholder.style.display = "none";
+  };
+  testImg.onerror = function() {
+    img.style.display = "none";
+    placeholder.style.display = "block";
+  };
+  testImg.src = newSrc;
+}
+
+// ============================================
 // Initialize
 // ============================================
 
@@ -212,4 +270,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initial ops log entry
   appendOp("Console initialized", "info");
   appendOp("Waiting for commands...", "info");
+  
+  // Start polling for sensors and camera
+  setInterval(updateSensors, 500);  // 2 Hz
+  setInterval(updateCamera, 1000);  // 1 Hz
 });

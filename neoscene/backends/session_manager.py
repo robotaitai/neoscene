@@ -2,18 +2,117 @@
 
 MVP behavior: on each update, restart the viewer with the new scene.
 Uses subprocess to avoid MuJoCo viewer segfaults when restarting.
+Also runs a headless simulation worker for sensor/camera data.
 """
 
 import subprocess
 import tempfile
+import threading
+import time
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Optional
+
+import numpy as np
 
 from neoscene.core.asset_catalog import AssetCatalog
 from neoscene.core.scene_schema import SceneSpec
 from neoscene.exporters.mjcf_exporter import scene_to_mjcf
+
+
+@dataclass
+class SimulationWorker:
+    """Headless simulation worker that runs MuJoCo and collects sensor/camera data."""
+    
+    xml_path: str
+    running: bool = False
+    latest_sensors: dict = field(default_factory=dict)
+    latest_image: Optional[np.ndarray] = None
+    _model: object = None
+    _data: object = None
+    _renderer: object = None
+    
+    def start(self):
+        """Initialize MuJoCo model and data."""
+        import mujoco
+        self._model = mujoco.MjModel.from_xml_path(self.xml_path)
+        self._data = mujoco.MjData(self._model)
+        self.running = True
+    
+    def loop(self):
+        """Main simulation loop - runs at ~50Hz."""
+        import mujoco
+        
+        self.start()
+        
+        while self.running:
+            try:
+                mujoco.mj_step(self._model, self._data)
+                self._read_sensors()
+                self._render_camera()
+                time.sleep(0.02)  # 50 Hz
+            except Exception:
+                break
+    
+    def _read_sensors(self):
+        """Read all sensor values from the simulation."""
+        import mujoco
+        
+        m = self._model
+        d = self._data
+        sensors = {}
+        
+        for sid in range(m.nsensor):
+            name = mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_SENSOR, sid)
+            if name is None:
+                name = f"sensor_{sid}"
+            # Get sensor dimension and address
+            dim = m.sensor_dim[sid]
+            start = m.sensor_adr[sid]
+            
+            if dim == 1:
+                sensors[name] = float(d.sensordata[start])
+            else:
+                sensors[name] = [float(d.sensordata[start + i]) for i in range(dim)]
+        
+        self.latest_sensors = sensors
+    
+    def _render_camera(self):
+        """Render camera view to image (if cameras exist)."""
+        import mujoco
+        
+        m = self._model
+        d = self._data
+        
+        # Check if there are any cameras
+        if m.ncam == 0:
+            return
+        
+        # Initialize renderer if needed
+        if self._renderer is None:
+            try:
+                self._renderer = mujoco.Renderer(m, height=240, width=320)
+            except Exception:
+                # Renderer might not be available (no GPU, etc.)
+                return
+        
+        try:
+            # Update scene and render
+            self._renderer.update_scene(d, camera=0)  # Use first camera
+            self.latest_image = self._renderer.render()
+        except Exception:
+            pass
+    
+    def stop(self):
+        """Stop the simulation loop."""
+        self.running = False
+        if self._renderer is not None:
+            try:
+                self._renderer.close()
+            except Exception:
+                pass
+            self._renderer = None
 
 
 @dataclass
@@ -24,6 +123,8 @@ class SceneSession:
     last_scene: Optional[SceneSpec] = None
     viewer_process: Optional[subprocess.Popen] = None
     temp_xml_path: Optional[Path] = None
+    sim_worker: Optional[SimulationWorker] = None
+    sim_thread: Optional[threading.Thread] = None
 
 
 class SceneSessionManager:
@@ -31,6 +132,7 @@ class SceneSessionManager:
 
     MVP behavior: on each update, restart the viewer with the new scene.
     Uses subprocess to avoid segfaults when restarting viewers.
+    Also starts a headless simulation worker for sensor/camera polling.
     """
 
     def __init__(self, asset_root: Path):
@@ -60,6 +162,10 @@ class SceneSessionManager:
             self._sessions[new_id] = sess
             return sess
         return self._sessions[session_id]
+    
+    def get_session(self, session_id: str) -> Optional[SceneSession]:
+        """Get a session by ID without creating a new one."""
+        return self._sessions.get(session_id)
 
     def _generate_session_id(self) -> str:
         """Generate a unique session ID."""
@@ -76,8 +182,18 @@ class SceneSessionManager:
             except Exception:
                 pass
         session.viewer_process = None
+    
+    def _stop_sim_worker(self, session: SceneSession) -> None:
+        """Stop the simulation worker for a session."""
+        if session.sim_worker:
+            session.sim_worker.stop()
+        if session.sim_thread and session.sim_thread.is_alive():
+            session.sim_thread.join(timeout=1)
+        session.sim_worker = None
+        session.sim_thread = None
 
-        # Clean up temp file
+    def _cleanup_temp_file(self, session: SceneSession) -> None:
+        """Clean up temp XML file."""
         if session.temp_xml_path and session.temp_xml_path.exists():
             try:
                 session.temp_xml_path.unlink()
@@ -88,8 +204,7 @@ class SceneSessionManager:
     def update_scene(self, session: SceneSession, scene: SceneSpec) -> None:
         """Store scene and (re)start the MuJoCo viewer for this session.
 
-        MVP: stop existing viewer process (if any) and start a new one
-        with the updated MJCF.
+        Also starts a headless simulation worker for sensor/camera data.
 
         Args:
             session: The session to update.
@@ -97,8 +212,10 @@ class SceneSessionManager:
         """
         session.last_scene = scene
 
-        # Kill old viewer
+        # Kill old viewer and sim worker
         self._kill_viewer(session)
+        self._stop_sim_worker(session)
+        self._cleanup_temp_file(session)
 
         # Generate MJCF and write to temp file
         xml = scene_to_mjcf(scene, self.catalog)
@@ -111,8 +228,7 @@ class SceneSessionManager:
         temp_file.close()
         session.temp_xml_path = Path(temp_file.name)
 
-        # Launch viewer in subprocess
-        # Using python -c to run a minimal script that loads and views the scene
+        # 1) Launch viewer in subprocess
         viewer_script = f'''
 import mujoco
 import mujoco.viewer
@@ -135,8 +251,17 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
                 stderr=subprocess.DEVNULL,
             )
         except Exception:
-            # If subprocess fails, clean up
-            self._kill_viewer(session)
+            pass
+
+        # 2) Start headless simulation worker for sensors/cameras
+        try:
+            worker = SimulationWorker(xml_path=str(session.temp_xml_path))
+            sim_thread = threading.Thread(target=worker.loop, daemon=True)
+            session.sim_worker = worker
+            session.sim_thread = sim_thread
+            sim_thread.start()
+        except Exception:
+            pass
 
     def describe_scene(self, session: SceneSession) -> dict:
         """Return a small dict summary of the current scene for frontend.
@@ -155,6 +280,10 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
             session.viewer_process is not None 
             and session.viewer_process.poll() is None
         )
+        sim_running = (
+            session.sim_worker is not None 
+            and session.sim_worker.running
+        )
         
         return {
             "has_scene": True,
@@ -163,10 +292,35 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
             "object_count": len(spec.objects),
             "camera_count": len(spec.cameras),
             "viewer_running": viewer_running,
+            "sim_running": sim_running,
         }
+    
+    def get_sensors(self, session_id: str) -> dict:
+        """Get latest sensor values for a session.
+        
+        Returns:
+            Dict with 'ok' boolean and 'sensors' dict.
+        """
+        session = self.get_session(session_id)
+        if not session or not session.sim_worker:
+            return {"ok": False, "sensors": {}}
+        return {"ok": True, "sensors": session.sim_worker.latest_sensors}
+    
+    def get_camera_image(self, session_id: str) -> Optional[np.ndarray]:
+        """Get latest camera image for a session.
+        
+        Returns:
+            Numpy array (RGB image) or None if not available.
+        """
+        session = self.get_session(session_id)
+        if not session or not session.sim_worker:
+            return None
+        return session.sim_worker.latest_image
 
     def cleanup(self) -> None:
         """Clean up all sessions and their viewers."""
         for session in self._sessions.values():
             self._kill_viewer(session)
+            self._stop_sim_worker(session)
+            self._cleanup_temp_file(session)
         self._sessions.clear()

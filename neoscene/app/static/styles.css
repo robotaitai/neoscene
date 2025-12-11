@@ -265,9 +265,65 @@ body {
 .json-boolean { color: #a78bfa; }
 .json-null { color: #a78bfa; }
 
+/* Sensors Panel */
+.sensor-panel {
+  max-height: 150px;
+}
+
+.sensor-body {
+  max-height: 110px;
+  overflow-y: auto;
+  font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+}
+
+.sensor-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 0;
+  border-bottom: 1px solid #0f172a;
+}
+
+.sensor-row:last-child {
+  border-bottom: none;
+}
+
+.sensor-name {
+  color: #7dd3fc;
+}
+
+.sensor-value {
+  color: #34d399;
+  font-weight: 500;
+}
+
+/* Camera Panel */
+.camera-panel {
+  min-height: 100px;
+}
+
+.camera-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+}
+
+.camera-body img {
+  max-width: 100%;
+  border-radius: 6px;
+  border: 1px solid #1f2937;
+}
+
+.no-data {
+  color: #4b5563;
+  font-size: 11px;
+  font-style: italic;
+}
+
 /* Ops Log */
 .ops-panel {
-  max-height: 200px;
+  max-height: 150px;
 }
 
 .ops-body {

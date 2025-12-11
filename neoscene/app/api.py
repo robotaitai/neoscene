@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -389,3 +389,61 @@ async def search_assets_endpoint(req: SearchAssetsRequest):
         assets=[AssetInfo(**a) for a in results],
         total=len(results),
     )
+
+
+# =============================================================================
+# Sensor & Camera Endpoints
+# =============================================================================
+
+
+@app.get("/sensors/{session_id}", tags=["Telemetry"])
+async def get_sensors(session_id: str):
+    """Get latest sensor values for a session.
+    
+    Returns sensor data from the headless simulation worker.
+    Poll this endpoint at ~2Hz for live telemetry.
+    """
+    result = session_manager.get_sensors(session_id)
+    return JSONResponse(result)
+
+
+@app.get("/camera/{session_id}", tags=["Telemetry"])
+async def get_camera(session_id: str):
+    """Get latest camera image for a session.
+    
+    Returns a JPEG image from the first camera in the scene.
+    Poll this endpoint at ~1Hz for live camera feed.
+    Returns 204 No Content if no image is available.
+    """
+    image = session_manager.get_camera_image(session_id)
+    
+    if image is None:
+        return Response(status_code=204)
+    
+    # Encode numpy image as JPEG
+    try:
+        import cv2
+        # Convert RGB to BGR for cv2 encoding
+        if len(image.shape) == 3 and image.shape[2] == 3:
+            image_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        else:
+            image_bgr = image
+        _, buf = cv2.imencode(".jpg", image_bgr, [cv2.IMWRITE_JPEG_QUALITY, 80])
+        return Response(
+            content=buf.tobytes(),
+            media_type="image/jpeg",
+        )
+    except ImportError:
+        # cv2 not available, try PIL
+        try:
+            from PIL import Image
+            import io
+            pil_image = Image.fromarray(image)
+            buf = io.BytesIO()
+            pil_image.save(buf, format="JPEG", quality=80)
+            return Response(
+                content=buf.getvalue(),
+                media_type="image/jpeg",
+            )
+        except ImportError:
+            return Response(status_code=204)
