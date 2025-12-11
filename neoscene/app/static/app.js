@@ -152,10 +152,17 @@ function updateWorldModel(scene) {
   const camCount = Array.isArray(scene.cameras) ? scene.cameras.length : 0;
   html += `<div style="margin-top:6px;"><strong>Cameras:</strong> ${camCount}</div>`;
 
+  const pathCount = Array.isArray(scene.paths) ? scene.paths.length : 0;
+  const taskCount = Array.isArray(scene.tasks) ? scene.tasks.length : 0;
+  html += `<div><strong>Paths:</strong> ${pathCount} | <strong>Tasks:</strong> ${taskCount}</div>`;
+
   // Keep the full camera list for the camera panel
   currentCameras = Array.isArray(scene.cameras) ? scene.cameras : [];
 
   summaryEl.innerHTML = html;
+
+  // Update tasks & paths panel
+  updateTasksAndPaths(scene);
 
   // raw JSON
   jsonEl.textContent = JSON.stringify(scene, null, 2);
@@ -179,6 +186,56 @@ function updateWorldModel(scene) {
   
   // Scroll to bottom of history
   historyEl.scrollTop = historyEl.scrollHeight;
+}
+
+// ============================================
+// Tasks & Paths Panel
+// ============================================
+
+function updateTasksAndPaths(scene) {
+  const taskList = document.getElementById("task-list");
+  const pathList = document.getElementById("path-list");
+  
+  if (!taskList || !pathList) return;
+
+  const tasks = Array.isArray(scene.tasks) ? scene.tasks : [];
+  const paths = Array.isArray(scene.paths) ? scene.paths : [];
+
+  // Render tasks
+  if (tasks.length === 0) {
+    taskList.innerHTML = '<strong>Tasks:</strong> <span class="no-data">none</span>';
+  } else {
+    let taskHtml = '<strong>Tasks:</strong>';
+    tasks.forEach((t) => {
+      const speedStr = typeof t.speed === 'number' ? t.speed.toFixed(1) : t.speed;
+      taskHtml += `
+        <div class="task-item">
+          <code>${t.name || 'unnamed'}</code>
+          <span class="task-type"> — ${t.type || 'path_follow'} on <code>${t.path_name || 'main_path'}</code></span>
+          <br><span class="task-type">speed: ${speedStr} m/s${t.repeat ? ' (repeat)' : ''}</span>
+        </div>
+      `;
+    });
+    taskList.innerHTML = taskHtml;
+  }
+
+  // Render paths
+  if (paths.length === 0) {
+    pathList.innerHTML = '<strong>Paths:</strong> <span class="no-data">none</span>';
+  } else {
+    let pathHtml = '<strong>Paths:</strong>';
+    paths.forEach((p) => {
+      const wpCount = Array.isArray(p.waypoints) ? p.waypoints.length : 0;
+      const loopStr = p.loop ? ' (loop)' : '';
+      pathHtml += `
+        <div class="path-item">
+          <code>${p.name || 'unnamed'}</code>
+          <span class="path-waypoints"> — ${wpCount} waypoints${loopStr}</span>
+        </div>
+      `;
+    });
+    pathList.innerHTML = pathHtml;
+  }
 }
 
 // ============================================

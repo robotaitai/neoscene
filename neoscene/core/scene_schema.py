@@ -183,6 +183,50 @@ class PhysicsSpec(BaseModel):
     )
 
 
+class PathWaypoint(BaseModel):
+    """A single waypoint in a path."""
+    
+    x: float = Field(description="X coordinate in meters")
+    y: float = Field(description="Y coordinate in meters")
+    z: float = Field(default=0.0, description="Z coordinate in meters (usually ground level)")
+
+
+class PathSpec(BaseModel):
+    """A geometric path the vehicle can follow.
+    
+    Paths are visualized as colored strips on the ground and can be
+    referenced by tasks for autonomous navigation.
+    """
+    
+    name: str = Field(default="main_path", description="Unique name for the path")
+    waypoints: List[PathWaypoint] = Field(
+        default_factory=list, description="Ordered list of waypoints"
+    )
+    width: float = Field(default=0.3, ge=0.1, le=5.0, description="Visual width of the path in meters")
+    color: Annotated[List[float], Field(min_length=3, max_length=3)] = Field(
+        default_factory=lambda: [1.0, 0.8, 0.2],
+        description="[r, g, b] color of the path (0-1)"
+    )
+    loop: bool = Field(default=False, description="Whether the path loops back to start")
+
+
+class TaskSpec(BaseModel):
+    """A high-level task that the controller can execute.
+    
+    Tasks reference paths and define behaviors for autonomous navigation.
+    Currently supports 'path_follow' which makes the vehicle follow a defined path.
+    """
+    
+    name: str = Field(description="User-visible name of the task")
+    description: str = Field(default="", description="Human-readable description")
+    type: Literal["path_follow", "patrol", "idle"] = Field(
+        default="path_follow", description="Type of task behavior"
+    )
+    path_name: str = Field(default="main_path", description="Name of the path to follow")
+    speed: float = Field(default=2.0, ge=0.1, le=20.0, description="Nominal speed in m/s")
+    repeat: bool = Field(default=False, description="Whether to repeat the task when finished")
+
+
 class SceneSpec(BaseModel):
     """Complete scene specification - the intermediate representation (IR).
 
@@ -218,6 +262,12 @@ class SceneSpec(BaseModel):
     )
     physics: PhysicsSpec = Field(
         default_factory=PhysicsSpec, description="Physics simulation settings"
+    )
+    paths: List[PathSpec] = Field(
+        default_factory=list, description="Navigation paths for vehicles to follow"
+    )
+    tasks: List[TaskSpec] = Field(
+        default_factory=list, description="High-level tasks for autonomous behavior"
     )
 
 

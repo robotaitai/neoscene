@@ -17,6 +17,7 @@ from neoscene.core.scene_schema import (
     GridLayout,
     InstanceSpec,
     ObjectSpec,
+    PathSpec,
     Pose,
     RandomLayout,
     SceneSpec,
@@ -176,6 +177,83 @@ def _compute_look_at_euler(
     pitch = -math.atan2(dz, horizontal_dist) * 180 / math.pi
 
     return (0.0, pitch, yaw)
+
+
+def _render_path_geoms(path: PathSpec, worldbody: ET.Element) -> None:
+    """Render a path as a series of box geoms connecting waypoints.
+    
+    Args:
+        path: The PathSpec to render.
+        worldbody: The worldbody element to add path geoms to.
+    """
+    waypoints = path.waypoints
+    if len(waypoints) < 2:
+        return
+    
+    # Create a material for this path
+    r, g, b = path.color if len(path.color) >= 3 else (1.0, 0.8, 0.2)
+    
+    for i in range(len(waypoints) - 1):
+        p0 = waypoints[i]
+        p1 = waypoints[i + 1]
+        
+        dx = p1.x - p0.x
+        dy = p1.y - p0.y
+        length = math.sqrt(dx * dx + dy * dy)
+        
+        if length < 1e-3:
+            continue
+        
+        # Center point
+        cx = 0.5 * (p0.x + p1.x)
+        cy = 0.5 * (p0.y + p1.y)
+        cz = 0.5 * (p0.z + p1.z) + 0.005  # Slightly above ground
+        
+        # Rotation angle
+        angle_rad = math.atan2(dy, dx)
+        angle_deg = angle_rad * 180.0 / math.pi
+        
+        # Create path segment body
+        body = ET.SubElement(worldbody, "body")
+        body.set("name", f"path_{path.name}_seg_{i}")
+        body.set("pos", _format_vec([cx, cy, cz]))
+        body.set("euler", _format_vec([0, 0, angle_deg]))
+        
+        # Create the path strip geom (no collision)
+        geom = ET.SubElement(body, "geom")
+        geom.set("type", "box")
+        geom.set("size", _format_vec([length / 2, path.width / 2, 0.002]))
+        geom.set("rgba", _format_vec([r, g, b, 0.8]))
+        geom.set("contype", "0")
+        geom.set("conaffinity", "0")
+    
+    # If loop, connect last to first
+    if path.loop and len(waypoints) >= 2:
+        p0 = waypoints[-1]
+        p1 = waypoints[0]
+        
+        dx = p1.x - p0.x
+        dy = p1.y - p0.y
+        length = math.sqrt(dx * dx + dy * dy)
+        
+        if length >= 1e-3:
+            cx = 0.5 * (p0.x + p1.x)
+            cy = 0.5 * (p0.y + p1.y)
+            cz = 0.5 * (p0.z + p1.z) + 0.005
+            angle_rad = math.atan2(dy, dx)
+            angle_deg = angle_rad * 180.0 / math.pi
+            
+            body = ET.SubElement(worldbody, "body")
+            body.set("name", f"path_{path.name}_seg_loop")
+            body.set("pos", _format_vec([cx, cy, cz]))
+            body.set("euler", _format_vec([0, 0, angle_deg]))
+            
+            geom = ET.SubElement(body, "geom")
+            geom.set("type", "box")
+            geom.set("size", _format_vec([length / 2, path.width / 2, 0.002]))
+            geom.set("rgba", _format_vec([r, g, b, 0.8]))
+            geom.set("contype", "0")
+            geom.set("conaffinity", "0")
 
 
 def _load_asset_content(mjcf_path: Path, prefix: str) -> dict:
@@ -454,6 +532,10 @@ def scene_to_mjcf(
             roll, pitch, yaw = _to_euler_deg(cam.pose)
             if roll != 0 or pitch != 0 or yaw != 0:
                 camera.set("euler", _format_vec([roll, pitch, yaw]))
+
+    # Render paths as visual strips on the ground
+    for path in scene.paths:
+        _render_path_geoms(path, worldbody)
 
     # Add actuators section if we have any
     if all_actuators:

@@ -153,6 +153,27 @@ def _build_schema_summary() -> str:
       "diffuse": [r, g, b]
     }
   ],
+  "paths": [
+    {
+      "name": "string (required) - unique path name",
+      "waypoints": [
+        {"x": float, "y": float, "z": 0.0}
+      ],
+      "width": 0.3 (optional - visual width in meters),
+      "color": [1.0, 0.8, 0.2] (optional - RGB 0-1),
+      "loop": false (optional - connect last waypoint to first)
+    }
+  ],
+  "tasks": [
+    {
+      "name": "string (required) - task name",
+      "description": "string (optional)",
+      "type": "path_follow" (required),
+      "path_name": "string (required) - name of path to follow",
+      "speed": 2.0 (optional - m/s),
+      "repeat": false (optional - repeat when finished)
+    }
+  ],
   "physics": {
     "timestep": 0.002,
     "solver": "Newton"
@@ -166,6 +187,9 @@ def _build_schema_summary() -> str:
 3. For multiple objects, use either `instances` OR `layout`, not both
 4. For grid layout: total objects = rows × cols
 5. Environment is required, objects/cameras/lights are optional
+6. Paths define navigation routes; tasks use paths for autonomous behavior
+7. When user asks for "patrol route" or "path", create a paths entry with waypoints
+8. When user asks for "task" or "behavior", create a tasks entry referencing a path
 """
 
 
