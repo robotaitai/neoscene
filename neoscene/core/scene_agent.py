@@ -371,7 +371,8 @@ Instructions:
         logger.info(
             f"Generated scene: name='{spec.name}', "
             f"env='{spec.environment.asset_id}', "
-            f"objects={len(spec.objects)}, cameras={len(spec.cameras)}"
+            f"objects={len(spec.objects)}, cameras={len(spec.cameras)}, "
+            f"paths={len(spec.paths)}, tasks={len(spec.tasks)}"
         )
 
         return spec
@@ -604,18 +605,73 @@ Remember to use ONLY asset_id values from the Available Assets list."""
         # Build editing prompt with explicit instructions
         prev_json = json.dumps(previous.model_dump(), indent=2)
 
-        system_instructions = f"""You are a MuJoCo SCENE EDITOR.
+        system_instructions = f"""You are a MuJoCo SCENE & TASK PLANNER.
 
 You receive:
-1. The CURRENT scene specification as JSON (SceneSpec).
-2. A USER REQUEST describing desired changes.
+1. The CURRENT SceneSpec JSON.
+2. A USER REQUEST.
 
-Your job:
-- Apply the requested changes to the CURRENT scene.
-- Keep everything else the same.
-- If the user says things like "start over", "new scene", "clear all":
-  then you may ignore the current scene and build a new one.
-- Use only assets that exist in the provided asset catalog.
+You must MODIFY the SceneSpec JSON. You are allowed to:
+- Add / remove / modify objects, cameras, environment (scene editing)
+- Add / remove / modify PATHS (SceneSpec.paths) - navigation routes
+- Add / remove / modify TASKS (SceneSpec.tasks) - autonomous behaviors
+
+## PATH & TASK RULES
+
+A PathSpec is a polyline in world coordinates:
+```json
+{{
+  "name": "coverage_path",
+  "waypoints": [
+    {{"x": 0, "y": 0, "z": 0}},
+    {{"x": 10, "y": 0, "z": 0}},
+    {{"x": 10, "y": 10, "z": 0}},
+    {{"x": 0, "y": 10, "z": 0}}
+  ],
+  "width": 0.3,
+  "color": [1.0, 0.8, 0.2],
+  "loop": false
+}}
+```
+
+A TaskSpec of type "path_follow" references a path by name:
+```json
+{{
+  "name": "row_coverage",
+  "description": "Drive each row once and return to start.",
+  "type": "path_follow",
+  "path_name": "coverage_path",
+  "speed": 2.0,
+  "repeat": false
+}}
+```
+
+## WHEN USER ASKS FOR A TASK OR PATH
+
+When the user mentions: "task", "path", "route", "coverage", "patrol", "navigate", "drive to":
+1. Create a PathSpec with waypoints that represent the desired route
+2. Create a TaskSpec that references that path by name
+
+### Example 1: Row Coverage
+User: "Plan a task called row_coverage to drive all orchard rows"
+→ Create path "row_coverage_path" with waypoints zig-zagging through rows
+→ Create task "row_coverage" referencing "row_coverage_path"
+
+### Example 2: Perimeter Patrol
+User: "Create a perimeter patrol task"
+→ Create path "perimeter_path" with waypoints around the scene boundary
+→ Create task "perimeter_patrol" referencing "perimeter_path", loop=true
+
+### Example 3: Point-to-Point
+User: "Create a task to drive from the tractor to coordinates (20, 15)"
+→ Create path with waypoints from current tractor position to (20, 15)
+→ Create task referencing that path
+
+## COORDINATE SYSTEM
+- x: positive = forward/east
+- y: positive = left/north  
+- z: positive = up (usually 0 for ground paths)
+- For an orchard with rows along X axis, alternate Y positions for zig-zag
 
 {self._asset_summary}
 
@@ -625,6 +681,8 @@ IMPORTANT:
 - Always respond with VALID JSON matching the SceneSpec schema.
 - DO NOT wrap JSON in markdown, no explanations, JSON ONLY.
 - Use ONLY asset_id values from the Available Assets list above.
+- If user says "start over", "new scene", "clear all": create fresh scene.
+- Keep existing objects/cameras unless user asks to remove them.
 """
 
         user_block = f"""CURRENT_SCENE_JSON:
@@ -633,7 +691,10 @@ IMPORTANT:
 USER_REQUEST:
 {user_prompt}
 
-Return the FULL UPDATED SceneSpec JSON only."""
+Instructions:
+- If scene editing: modify objects, cameras, environment as requested
+- If task/path planning: create PathSpec + TaskSpec entries
+- Return the FULL UPDATED SceneSpec JSON only (no markdown, no explanation)"""
 
         full_prompt = system_instructions + "\n\n" + user_block
 
@@ -653,7 +714,8 @@ Return the FULL UPDATED SceneSpec JSON only."""
         logger.info(
             f"Updated scene: name='{spec.name}', "
             f"env='{spec.environment.asset_id}', "
-            f"objects={len(spec.objects)}, cameras={len(spec.cameras)}"
+            f"objects={len(spec.objects)}, cameras={len(spec.cameras)}, "
+            f"paths={len(spec.paths)}, tasks={len(spec.tasks)}"
         )
 
         return spec
