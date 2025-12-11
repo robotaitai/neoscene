@@ -314,10 +314,15 @@ class RowNavigator:
         state = self.state
         
         # Curved path: omega = v / R
+        # Also move forward during turn
         v = cfg.v_turn
         omega = state.turn_direction * v / cfg.turn_radius
         
         return v, omega
+    
+    def _simple_drive_forward(self) -> Tuple[float, float]:
+        """Simple forward driving (for demo/fallback)."""
+        return self.config.v_nominal, 0.0
     
     def _enter_next_row(
         self, has_left: bool, has_right: bool,

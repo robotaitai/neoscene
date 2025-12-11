@@ -117,7 +117,26 @@ class SimulationWorker:
         # Use row navigator for tractor if available
         if self._navigator is not None:
             v, omega = self._navigator.step(m, d, dt)
-            self._navigator.apply_controls(d, v, omega)
+            # Apply controls manually with debug
+            wheelbase = 1.5
+            v_left = v - 0.5 * wheelbase * omega
+            v_right = v + 0.5 * wheelbase * omega
+            
+            # Find and set motor controls
+            for i in range(m.nu):
+                name = mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_ACTUATOR, i)
+                if not name:
+                    continue
+                name_lower = name.lower()
+                
+                if 'motor' in name_lower:
+                    # Left motors (rl = rear left)
+                    if '_rl' in name_lower:
+                        d.ctrl[i] = v_left
+                    # Right motors (rr = rear right)
+                    elif '_rr' in name_lower:
+                        d.ctrl[i] = v_right
+            
             self.navigator_status = self._navigator.get_status()
         else:
             # Fallback: simple forward motion for all motors

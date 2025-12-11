@@ -1,5 +1,16 @@
-<!-- Forest Trees - includable fragment -->
-<!-- Simplified tree representation for physics -->
-<geom name="tree_trunk" type="cylinder" size="0.3 4" pos="0 0 4" rgba="0.4 0.25 0.1 1"/>
-<geom name="tree_foliage" type="sphere" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
-
+<mujoco>
+  <!-- Tree asset - trunk and foliage -->
+  <asset>
+    <material name="tree_bark" rgba="0.4 0.25 0.1 1"/>
+    <material name="tree_leaves" rgba="0.2 0.5 0.15 1"/>
+  </asset>
+  
+  <worldbody>
+    <body name="tree">
+      <!-- Trunk -->
+      <geom name="trunk" type="cylinder" size="0.3 2" pos="0 0 2" material="tree_bark"/>
+      <!-- Foliage -->
+      <geom name="foliage" type="sphere" size="2.5" pos="0 0 5" material="tree_leaves"/>
+    </body>
+  </worldbody>
+</mujoco>
