@@ -36,11 +36,6 @@ class SimulationWorker:
     running: bool = False
     latest_sensors: dict = field(default_factory=dict)
     latest_image: Optional[np.ndarray] = None
-    
-    # Control inputs (set by API, used by simulation)
-    throttle: float = 0.0  # -1 to 1, controls rear wheels
-    steering: float = 0.0  # -1 to 1, not used yet (no steering joints)
-    
     _model: object = None
     _data: object = None
     _renderer: object = None
@@ -78,29 +73,41 @@ class SimulationWorker:
         logger.info("SimWorker stopped")
     
     def _apply_controls(self):
-        """Apply control inputs to actuators based on throttle/steering.
+        """Apply control inputs to actuators for motion.
         
-        Uses self.throttle (-1 to 1) to control wheel motors.
-        Positive throttle = forward, negative = reverse.
+        - Wheel motors: constant forward velocity
+        - Human joints: simple walking gait
         """
         import mujoco
+        import math
         
         m = self._model
         d = self._data
-        
-        # Map throttle to wheel velocity (rad/s)
-        # throttle=1.0 -> ~20 rad/s -> ~6 m/s for 0.6m radius wheel
-        target_velocity = self.throttle * 20.0
+        t = d.time  # Simulation time for gait phase
         
         for i in range(m.nu):
             name = mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_ACTUATOR, i)
-            if name and ('motor' in name.lower() or 'drive' in name.lower()):
-                d.ctrl[i] = target_velocity
-    
-    def set_controls(self, throttle: float = 0.0, steering: float = 0.0):
-        """Set control inputs (called from API)."""
-        self.throttle = max(-1.0, min(1.0, throttle))
-        self.steering = max(-1.0, min(1.0, steering))
+            if not name:
+                continue
+            name_lower = name.lower()
+            
+            # Wheel motors: forward motion
+            if 'motor' in name_lower or 'drive' in name_lower:
+                d.ctrl[i] = 3.0  # ~1 m/s for typical wheel
+            
+            # Human walking gait (simple sinusoidal)
+            elif 'hip_ctrl' in name_lower:
+                # Alternating hip swing for walking
+                phase = 0 if 'left' in name_lower else math.pi
+                d.ctrl[i] = 20.0 * math.sin(2.0 * t + phase)  # degrees
+            elif 'knee_ctrl' in name_lower:
+                # Knee bend during swing phase
+                phase = 0 if 'left' in name_lower else math.pi
+                d.ctrl[i] = 30.0 * max(0, math.sin(2.0 * t + phase))  # 0-30 deg
+            elif 'shoulder_ctrl' in name_lower:
+                # Opposite arm swing
+                phase = math.pi if 'left' in name_lower else 0
+                d.ctrl[i] = 15.0 * math.sin(2.0 * t + phase)
     
     def _read_sensors(self):
         """Read all sensor values from the simulation."""

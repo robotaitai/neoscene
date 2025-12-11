@@ -224,7 +224,8 @@ def _load_asset_content(mjcf_path: Path, prefix: str) -> dict:
         ref_attrs = [
             "site", "material", "mesh", "texture", "class", "childclass",
             "joint", "joint1", "joint2", "body", "body1", "body2",
-            "geom", "geom1", "geom2", "tendon", "actuator", "sensor"
+            "geom", "geom1", "geom2", "tendon", "actuator", "sensor",
+            "objname", "target", "refname", "sensorname"  # For sensor references
         ]
         for ref_attr in ref_attrs:
             if ref_attr in elem.attrib:
@@ -264,7 +265,6 @@ def _load_asset_content(mjcf_path: Path, prefix: str) -> dict:
                     for sub in child:
                         if sub.tag == "freejoint":
                             result["has_freejoint"] = True
-                            result["freejoint_body"] = child.get("name")
         
         # Extract sensor elements
         sensor_elem = root.find("sensor")
@@ -409,29 +409,27 @@ def scene_to_mjcf(
             else:
                 body_name = f"{obj_name_base}_{idx}"
 
-            # Load and inline object content
+            # Load asset content
             obj_content = _load_asset_content(obj_mjcf_path, body_name)
             
-            # Check if asset has a freejoint (needs special handling)
+            # Get position and orientation
+            pos = inst.pose.position
+            roll, pitch, yaw = _to_euler_deg(inst.pose)
+            
             if obj_content.get("has_freejoint"):
-                # Freejoint bodies go directly in worldbody with position set on them
+                # Freejoint assets: place body directly in worldbody with position on body
                 for elem in obj_content["worldbody"]:
-                    # Set position on the freejoint body itself
-                    elem.set("pos", _format_vec(inst.pose.position))
-                    roll, pitch, yaw = _to_euler_deg(inst.pose)
+                    elem.set("pos", _format_vec(pos))
                     if roll != 0 or pitch != 0 or yaw != 0:
                         elem.set("euler", _format_vec([roll, pitch, yaw]))
                     worldbody.append(elem)
             else:
-                # Regular objects: wrap in a positioning body
+                # Regular assets: wrap in positioning body
                 body = ET.SubElement(worldbody, "body")
                 body.set("name", body_name)
-                body.set("pos", _format_vec(inst.pose.position))
-                
-                roll, pitch, yaw = _to_euler_deg(inst.pose)
+                body.set("pos", _format_vec(pos))
                 if roll != 0 or pitch != 0 or yaw != 0:
                     body.set("euler", _format_vec([roll, pitch, yaw]))
-                
                 for elem in obj_content["worldbody"]:
                     body.append(elem)
             

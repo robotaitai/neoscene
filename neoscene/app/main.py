@@ -112,12 +112,15 @@ def run_api(host: str = "0.0.0.0", port: int = 8000, reload: bool = False) -> in
         import uvicorn
 
         print(f"Starting Neoscene API server on http://{host}:{port}")
+        print(f"Chat UI available at http://{host}:{port}/")
         print(f"API docs available at http://{host}:{port}/docs")
         uvicorn.run(
             "neoscene.app.api:app",
             host=host,
             port=port,
             reload=reload,
+            log_level="warning",  # Reduce access log noise
+            access_log=False,     # Disable per-request logging
         )
         return 0
     except ImportError:

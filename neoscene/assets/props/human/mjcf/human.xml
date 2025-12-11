@@ -1,27 +1,119 @@
 <mujoco>
-  <!-- Simple humanoid figure for scene population -->
+  <!-- Walking humanoid with articulated legs -->
+  <compiler angle="degree"/>
+  
+  <default>
+    <joint damping="2" armature="0.1"/>
+    <geom friction="1 0.5 0.1" condim="3"/>
+  </default>
+  
   <asset>
     <material name="human_skin" rgba="0.9 0.7 0.6 1"/>
     <material name="human_clothes" rgba="0.2 0.3 0.6 1"/>
     <material name="human_pants" rgba="0.3 0.3 0.35 1"/>
+    <material name="human_shoes" rgba="0.15 0.12 0.1 1"/>
   </asset>
   
   <worldbody>
-    <body name="human_root">
+    <body name="human_pelvis">
+      <!-- Freejoint for walking motion -->
+      <freejoint name="human_root"/>
+      <inertial pos="0 0 0" mass="15" diaginertia="0.5 0.5 0.3"/>
+      
+      <!-- Pelvis/hips -->
+      <geom name="pelvis" type="box" size="0.15 0.1 0.08" pos="0 0 0" material="human_pants"/>
+      
       <!-- Torso -->
-      <geom name="torso" type="capsule" size="0.15 0.25" pos="0 0 1.1" material="human_clothes"/>
+      <body name="torso" pos="0 0 0.35">
+        <inertial pos="0 0 0" mass="25" diaginertia="1 1 0.5"/>
+        <geom name="torso" type="capsule" size="0.14 0.2" material="human_clothes"/>
+        
+        <!-- Head -->
+        <body name="head" pos="0 0 0.35">
+          <inertial pos="0 0 0" mass="5" diaginertia="0.1 0.1 0.1"/>
+          <geom name="head" type="sphere" size="0.1" material="human_skin"/>
+        </body>
+        
+        <!-- Left arm -->
+        <body name="left_upper_arm" pos="-0.18 0 0.15">
+          <inertial pos="0 0 -0.1" mass="2" diaginertia="0.02 0.02 0.01"/>
+          <joint name="left_shoulder" type="hinge" axis="1 0 0" range="-60 60"/>
+          <geom name="left_upper" type="capsule" size="0.04 0.12" euler="0 0 0" material="human_clothes"/>
+          
+          <body name="left_lower_arm" pos="0 0 -0.25">
+            <inertial pos="0 0 -0.08" mass="1.5" diaginertia="0.01 0.01 0.005"/>
+            <joint name="left_elbow" type="hinge" axis="1 0 0" range="-120 0"/>
+            <geom name="left_lower" type="capsule" size="0.035 0.1" material="human_skin"/>
+          </body>
+        </body>
+        
+        <!-- Right arm -->
+        <body name="right_upper_arm" pos="0.18 0 0.15">
+          <inertial pos="0 0 -0.1" mass="2" diaginertia="0.02 0.02 0.01"/>
+          <joint name="right_shoulder" type="hinge" axis="1 0 0" range="-60 60"/>
+          <geom name="right_upper" type="capsule" size="0.04 0.12" euler="0 0 0" material="human_clothes"/>
+          
+          <body name="right_lower_arm" pos="0 0 -0.25">
+            <inertial pos="0 0 -0.08" mass="1.5" diaginertia="0.01 0.01 0.005"/>
+            <joint name="right_elbow" type="hinge" axis="1 0 0" range="-120 0"/>
+            <geom name="right_lower" type="capsule" size="0.035 0.1" material="human_skin"/>
+          </body>
+        </body>
+      </body>
       
-      <!-- Head -->
-      <geom name="head" type="sphere" size="0.12" pos="0 0 1.55" material="human_skin"/>
+      <!-- Left leg -->
+      <body name="left_thigh" pos="-0.1 0 -0.05">
+        <inertial pos="0 0 -0.15" mass="8" diaginertia="0.1 0.1 0.05"/>
+        <joint name="left_hip" type="hinge" axis="1 0 0" range="-30 90"/>
+        <geom name="left_thigh" type="capsule" size="0.06 0.18" material="human_pants"/>
+        
+        <body name="left_shin" pos="0 0 -0.4">
+          <inertial pos="0 0 -0.15" mass="4" diaginertia="0.05 0.05 0.02"/>
+          <joint name="left_knee" type="hinge" axis="1 0 0" range="0 120"/>
+          <geom name="left_shin" type="capsule" size="0.05 0.17" material="human_pants"/>
+          
+          <body name="left_foot" pos="0 0.05 -0.35">
+            <inertial pos="0 0.03 0" mass="1" diaginertia="0.01 0.01 0.01"/>
+            <geom name="left_foot" type="box" size="0.05 0.1 0.02" material="human_shoes"/>
+          </body>
+        </body>
+      </body>
       
-      <!-- Arms -->
-      <geom name="left_arm" type="capsule" size="0.05 0.25" pos="-0.25 0 1.1" euler="0 0 15" material="human_clothes"/>
-      <geom name="right_arm" type="capsule" size="0.05 0.25" pos="0.25 0 1.1" euler="0 0 -15" material="human_clothes"/>
-      
-      <!-- Legs -->
-      <geom name="left_leg" type="capsule" size="0.07 0.35" pos="-0.1 0 0.4" material="human_pants"/>
-      <geom name="right_leg" type="capsule" size="0.07 0.35" pos="0.1 0 0.4" material="human_pants"/>
+      <!-- Right leg -->
+      <body name="right_thigh" pos="0.1 0 -0.05">
+        <inertial pos="0 0 -0.15" mass="8" diaginertia="0.1 0.1 0.05"/>
+        <joint name="right_hip" type="hinge" axis="1 0 0" range="-30 90"/>
+        <geom name="right_thigh" type="capsule" size="0.06 0.18" material="human_pants"/>
+        
+        <body name="right_shin" pos="0 0 -0.4">
+          <inertial pos="0 0 -0.15" mass="4" diaginertia="0.05 0.05 0.02"/>
+          <joint name="right_knee" type="hinge" axis="1 0 0" range="0 120"/>
+          <geom name="right_shin" type="capsule" size="0.05 0.17" material="human_pants"/>
+          
+          <body name="right_foot" pos="0 0.05 -0.35">
+            <inertial pos="0 0.03 0" mass="1" diaginertia="0.01 0.01 0.01"/>
+            <geom name="right_foot" type="box" size="0.05 0.1 0.02" material="human_shoes"/>
+          </body>
+        </body>
+      </body>
     </body>
   </worldbody>
+  
+  <!-- ACTUATORS for walking motion -->
+  <actuator>
+    <!-- Leg joints for walking -->
+    <position name="left_hip_ctrl" joint="left_hip" kp="200"/>
+    <position name="left_knee_ctrl" joint="left_knee" kp="150"/>
+    <position name="right_hip_ctrl" joint="right_hip" kp="200"/>
+    <position name="right_knee_ctrl" joint="right_knee" kp="150"/>
+    <!-- Arm swing -->
+    <position name="left_shoulder_ctrl" joint="left_shoulder" kp="50"/>
+    <position name="right_shoulder_ctrl" joint="right_shoulder" kp="50"/>
+  </actuator>
+  
+  <!-- SENSORS -->
+  <sensor>
+    <framepos name="human_pos" objtype="body" objname="human_pelvis"/>
+    <framequat name="human_orient" objtype="body" objname="human_pelvis"/>
+  </sensor>
 </mujoco>
-
