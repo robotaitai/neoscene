@@ -18,6 +18,8 @@ The top-level scene specification.
   "objects": [ ... ],
   "cameras": [ ... ],
   "lights": [ ... ],
+  "paths": [ ... ],
+  "tasks": [ ... ],
   "physics": { ... }
 }
 ```
@@ -134,6 +136,57 @@ Specifies one or more instances of an asset. Use ONE of:
   "integrator": "implicitfast"
 }
 ```
+
+### PathSpec
+
+Defines navigation paths for vehicles to follow. Paths are rendered as colored strips on the ground.
+
+```json
+{
+  "name": "patrol_route",
+  "waypoints": [
+    {"x": 0, "y": 0, "z": 0},
+    {"x": 20, "y": 0, "z": 0},
+    {"x": 20, "y": 20, "z": 0},
+    {"x": 0, "y": 20, "z": 0}
+  ],
+  "width": 0.3,
+  "color": [1.0, 0.8, 0.2],
+  "loop": true
+}
+```
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `name` | string | "main_path" | Unique identifier for the path |
+| `waypoints` | array | [] | List of {x, y, z} waypoints |
+| `width` | float | 0.3 | Visual width of path strip (meters) |
+| `color` | [r,g,b] | [1.0, 0.8, 0.2] | RGB color (0-1) |
+| `loop` | bool | false | Connect last waypoint to first |
+
+### TaskSpec
+
+High-level autonomous behaviors that reference paths.
+
+```json
+{
+  "name": "patrol_task",
+  "description": "Patrol the orchard perimeter",
+  "type": "path_follow",
+  "path_name": "patrol_route",
+  "speed": 2.0,
+  "repeat": true
+}
+```
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `name` | string | required | User-visible task name |
+| `description` | string | "" | Human description |
+| `type` | string | "path_follow" | Task type (path_follow, patrol, idle) |
+| `path_name` | string | "main_path" | Name of path to follow |
+| `speed` | float | 2.0 | Nominal speed in m/s |
+| `repeat` | bool | false | Repeat task when finished |
 
 ## Complete Example
 

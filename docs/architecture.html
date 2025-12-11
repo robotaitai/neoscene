@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neoscene System Architecture</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #60a5fa;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(96, 165, 250, 0.3);
+        }
+        h2 {
+            color: #38bdf8;
+            border-bottom: 2px solid #1e40af;
+            padding-bottom: 10px;
+            margin-top: 50px;
+        }
+        h3 {
+            color: #7dd3fc;
+        }
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+        .mermaid {
+            background: #0f172a;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #334155;
+            overflow-x: auto;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+            padding: 15px;
+            background: #1e293b;
+            border-radius: 10px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .legend-box {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            border: 2px solid;
+        }
+        .description {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 20px 25px;
+            margin: 20px 0;
+            line-height: 1.7;
+        }
+        .description ul {
+            padding-left: 20px;
+        }
+        .description li {
+            margin: 8px 0;
+        }
+        .description code {
+            background: #0f172a;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #7dd3fc;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.9em;
+        }
+        .highlight-green { color: #4ade80; font-weight: 600; }
+        .highlight-blue { color: #60a5fa; font-weight: 600; }
+        .highlight-yellow { color: #fbbf24; font-weight: 600; }
+        .highlight-red { color: #f87171; font-weight: 600; }
+        .highlight-purple { color: #c084fc; font-weight: 600; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+        th {
+            background: #1e40af;
+            color: white;
+        }
+        tr:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+        
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .card h4 {
+            color: #38bdf8;
+            margin-top: 0;
+        }
+        
+        /* Legend colors */
+        .user-input { background: #3b82f6; border-color: #2563eb; }
+        .core { background: #22c55e; border-color: #16a34a; }
+        .llm { background: #a855f7; border-color: #9333ea; }
+        .assets { background: #f59e0b; border-color: #d97706; }
+        .output { background: #ef4444; border-color: #dc2626; }
+        .simulation { background: #06b6d4; border-color: #0891b2; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 Neoscene System Architecture</h1>
+        <p class="subtitle">Text-to-Scene Generator for MuJoCo Simulations</p>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-box user-input"></div>
+                <span>🔵 User Input</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box core"></div>
+                <span>🟢 Core Processing</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box llm"></div>
+                <span>🟣 LLM Integration</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box assets"></div>
+                <span>🟡 Asset Management</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box output"></div>
+                <span>🔴 Output/Export</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box simulation"></div>
+                <span>🔷 Simulation</span>
+            </div>
+        </div>
+
+        <!-- ==================== OVERVIEW ==================== -->
+        <h2>📊 System Overview</h2>
+        
+        <div class="description">
+            <h3>What is Neoscene?</h3>
+            <p>Neoscene is a <span class="highlight-blue">text-to-scene generator</span> that converts natural language descriptions into fully-functional MuJoCo simulations. It combines:</p>
+            <ul>
+                <li><span class="highlight-purple">LLM-powered scene understanding</span> using Google Gemini</li>
+                <li><span class="highlight-yellow">Comprehensive asset catalog</span> with vehicles, environments, props, and sensors</li>
+                <li><span class="highlight-green">Real-time simulation</span> with sensor data and camera feeds</li>
+                <li><span class="highlight-blue">Chat-driven interface</span> for incremental scene editing</li>
+            </ul>
+        </div>
+
+        <div class="mermaid">
+graph TB
+    subgraph USER["👤 User Interface"]
+        CHAT["Chat UI<br/>🔵 Web Interface<br/>localhost:8000"]
+        CLI["CLI<br/>🔵 Command Line<br/>python -m neoscene"]
+        API["REST API<br/>🔵 HTTP Endpoints<br/>/chat, /generate_scene"]
+    end
+    
+    subgraph CORE["⚙️ Core Processing"]
+        AGENT["SceneAgent<br/>🟢 Orchestrator<br/>- Prompt building<br/>- Response parsing<br/>- Asset validation"]
+        
+        SCHEMA["SceneSpec<br/>🟢 Data Model<br/>- Objects, Cameras<br/>- Paths, Tasks<br/>- Physics settings"]
+        
+        CATALOG["AssetCatalog<br/>🟡 Asset Index<br/>- 29 assets loaded<br/>- Search, fallback<br/>- LLM prompt gen"]
+    end
+    
+    subgraph LLM["🧠 LLM Layer"]
+        GEMINI["GeminiClient<br/>🟣 API Wrapper<br/>- gemini-2.0-flash<br/>- JSON generation<br/>- Auto-repair"]
+    end
+    
+    subgraph EXPORT["📤 Export Layer"]
+        MJCF_EXP["MJCF Exporter<br/>🔴 XML Generator<br/>- Layout resolution<br/>- Asset inlining<br/>- Path rendering"]
+    end
+    
+    subgraph SIM["🎮 Simulation Layer"]
+        SESSION["SessionManager<br/>🔷 Session State<br/>- Scene history<br/>- Viewer process"]
+        
+        WORKER["SimulationWorker<br/>🔷 Headless Sim<br/>- Sensor reading<br/>- Camera rendering<br/>- RowNavigator"]
+        
+        MUJOCO["MuJoCo<br/>🔷 Physics Engine<br/>- Step simulation<br/>- Contact physics"]
+    end
+    
+    CHAT --> |"message"| API
+    CLI --> |"--generate"| AGENT
+    API --> |"/chat"| AGENT
+    
+    AGENT --> |"query assets"| CATALOG
+    AGENT --> |"generate JSON"| GEMINI
+    GEMINI --> |"SceneSpec"| SCHEMA
+    
+    SCHEMA --> |"export"| MJCF_EXP
+    MJCF_EXP --> |"MJCF XML"| SESSION
+    
+    SESSION --> |"start sim"| WORKER
+    WORKER --> |"step"| MUJOCO
+    
+    WORKER --> |"sensor data"| API
+    WORKER --> |"camera images"| API
+    
+    classDef user fill:#3b82f6,color:#fff,stroke:#1d4ed8,stroke-width:2px
+    classDef core fill:#22c55e,color:#fff,stroke:#15803d,stroke-width:2px
+    classDef llm fill:#a855f7,color:#fff,stroke:#7c3aed,stroke-width:2px
+    classDef assets fill:#f59e0b,color:#000,stroke:#d97706,stroke-width:2px
+    classDef output fill:#ef4444,color:#fff,stroke:#dc2626,stroke-width:2px
+    classDef sim fill:#06b6d4,color:#fff,stroke:#0e7490,stroke-width:2px
+    
+    class CHAT,CLI,API user
+    class AGENT,SCHEMA core
+    class GEMINI llm
+    class CATALOG assets
+    class MJCF_EXP output
+    class SESSION,WORKER,MUJOCO sim
+        </div>
+
+        <!-- ==================== DATA FLOW ==================== -->
+        <h2>🔄 Scene Generation Pipeline</h2>
+        
+        <div class="description">
+            <h3>How a scene is generated:</h3>
+            <ol>
+                <li><span class="highlight-blue">User sends prompt</span> via chat, CLI, or API</li>
+                <li><span class="highlight-green">SceneAgent builds system prompt</span> with asset catalog and schema</li>
+                <li><span class="highlight-purple">LLM generates SceneSpec JSON</span> with objects, cameras, paths, tasks</li>
+                <li><span class="highlight-yellow">Asset references validated</span> against catalog</li>
+                <li><span class="highlight-red">MJCF Exporter</span> converts to MuJoCo XML, inlining assets</li>
+                <li><span class="highlight-blue">Simulation starts</span> with sensor polling and camera rendering</li>
+            </ol>
+        </div>
+
+        <div class="mermaid">
+sequenceDiagram
+    participant U as User
+    participant API as FastAPI
+    participant SA as SceneAgent
+    participant LLM as Gemini LLM
+    participant CAT as AssetCatalog
+    participant EXP as MJCF Exporter
+    participant SIM as SimWorker
+    
+    U->>API: POST /chat {message: "orchard with tractor"}
+    API->>SA: update_scene_spec(previous, message)
+    
+    SA->>CAT: for_llm_prompt()
+    CAT-->>SA: categorized asset list
+    
+    SA->>SA: Build system prompt<br/>+ schema + assets
+    SA->>LLM: generate(prompt)
+    LLM-->>SA: SceneSpec JSON
+    
+    SA->>SA: Parse & validate JSON
+    SA->>CAT: validate asset references
+    CAT-->>SA: OK / errors
+    
+    SA-->>API: SceneSpec object
+    
+    API->>EXP: scene_to_mjcf(spec, catalog)
+    EXP->>CAT: get_path(asset_id)
+    EXP->>EXP: Load & inline assets
+    EXP->>EXP: Render paths as geoms
+    EXP-->>API: MJCF XML string
+    
+    API->>SIM: start(xml)
+    SIM->>SIM: Load MuJoCo model
+    
+    loop Every 20ms
+        SIM->>SIM: mj_step()
+        SIM->>SIM: Read sensors
+        SIM->>SIM: Render camera
+    end
+    
+    API-->>U: {scene_spec, summary}
+    
+    loop Polling (500ms)
+        U->>API: GET /sensors/{session}
+        API-->>U: {sensors: {...}}
+    end
+    
+    loop Polling (1s)
+        U->>API: GET /camera/{session}
+        API-->>U: JPEG image
+    end
+        </div>
+
+        <!-- ==================== SCENESPEC ==================== -->
+        <h2>📋 SceneSpec Data Model</h2>
+        
+        <div class="description">
+            <h3>The SceneSpec is the central data structure:</h3>
+            <p>It's the <span class="highlight-green">intermediate representation (IR)</span> between natural language and MuJoCo XML. The LLM generates this JSON, which the exporter then converts to MJCF.</p>
+        </div>
+
+        <div class="mermaid">
+classDiagram
+    class SceneSpec {
+        +string name
+        +string description
+        +EnvironmentSpec environment
+        +List~ObjectSpec~ objects
+        +List~CameraSpec~ cameras
+        +List~LightSpec~ lights
+        +List~PathSpec~ paths
+        +List~TaskSpec~ tasks
+        +PhysicsSpec physics
+    }
+    
+    class EnvironmentSpec {
+        +string asset_id
+        +List~float~ gravity
+    }
+    
+    class ObjectSpec {
+        +string asset_id
+        +string name
+        +GridLayout|RandomLayout layout
+        +List~InstanceSpec~ instances
+    }
+    
+    class InstanceSpec {
+        +Pose pose
+        +string name_suffix
+    }
+    
+    class Pose {
+        +List~float~ position
+        +float yaw_deg
+        +float pitch_deg
+        +float roll_deg
+    }
+    
+    class GridLayout {
+        +string type = "grid"
+        +List~float~ origin
+        +int rows
+        +int cols
+        +List~float~ spacing
+    }
+    
+    class RandomLayout {
+        +string type = "random"
+        +List~float~ center
+        +float radius
+        +int count
+    }
+    
+    class CameraSpec {
+        +string name
+        +Pose pose
+        +List~float~ target
+        +float fovy
+    }
+    
+    class PathSpec {
+        +string name
+        +List~PathWaypoint~ waypoints
+        +float width
+        +List~float~ color
+        +bool loop
+    }
+    
+    class TaskSpec {
+        +string name
+        +string type
+        +string path_name
+        +float speed
+        +bool repeat
+    }
+    
+    SceneSpec *-- EnvironmentSpec
+    SceneSpec *-- ObjectSpec
+    SceneSpec *-- CameraSpec
+    SceneSpec *-- PathSpec
+    SceneSpec *-- TaskSpec
+    ObjectSpec *-- InstanceSpec
+    ObjectSpec *-- GridLayout
+    ObjectSpec *-- RandomLayout
+    InstanceSpec *-- Pose
+    CameraSpec *-- Pose
+        </div>
+
+        <!-- ==================== ASSET CATALOG ==================== -->
+        <h2>📦 Asset Catalog Architecture</h2>
+        
+        <div class="description">
+            <h3>Single Source of Truth Design</h3>
+            <p>All asset metadata lives in <code>manifest.json</code> files within each asset folder. The <span class="highlight-yellow">AssetCatalog</span> scans these at startup and builds indices for:</p>
+            <ul>
+                <li><span class="highlight-green">ID lookup</span> - O(1) access by asset_id</li>
+                <li><span class="highlight-green">Category grouping</span> - environment, vehicle, prop, sensor, etc.</li>
+                <li><span class="highlight-green">Fallback resolution</span> - e.g., "tractor" → tractor asset</li>
+                <li><span class="highlight-green">Tag-based search</span> - fuzzy matching for LLM queries</li>
+            </ul>
+        </div>
+
+        <div class="mermaid">
+graph TB
+    subgraph ASSETS["📁 neoscene/assets/"]
+        ENV["environments/<br/>orchard/, terrain/<br/>desert/, urban/, mountain/"]
+        ROBOTS["robots/<br/>tractor/, tractor_red/"]
+        VEHICLES["vehicle/<br/>tank/, apc/, car/<br/>forklift/, bicycle/"]
+        PROPS["props/<br/>trees/, crate/, barrel/<br/>human/, cow/, road/"]
+        SENSORS["sensors/<br/>rgb_camera/, imu/<br/>lidar/, cam_top_down/"]
+    end
+    
+    subgraph MANIFEST["manifest.json Structure"]
+        MAN_FIELDS["asset_id: 'tractor'<br/>name: 'Farm Tractor'<br/>category: 'vehicle'<br/>tags: ['tractor', 'farm', 'wheeled']<br/>fallback_for: ['farm_tractor']<br/>sensor_type: null<br/>mjcf_include: 'mjcf/tractor.xml'<br/>physical_size: [4.0, 2.0, 2.5]"]
+    end
+    
+    subgraph CATALOG["AssetCatalog"]
+        SCANNER["_scan()<br/>Walk directories<br/>Load manifests"]
+        
+        BY_ID["_by_id: Dict<br/>asset_id → Manifest"]
+        BY_CAT["_by_category: Dict<br/>category → [Manifests]"]
+        FALLBACK["_fallback_map: Dict<br/>concept → [Manifests]"]
+        
+        METHODS["Methods:<br/>• get(id) → Manifest<br/>• search(query) → [Summaries]<br/>• best_match(query) → Manifest<br/>• find_fallback(concept)<br/>• resolve_asset(concept)<br/>• for_llm_prompt()"]
+    end
+    
+    ENV --> SCANNER
+    ROBOTS --> SCANNER
+    VEHICLES --> SCANNER
+    PROPS --> SCANNER
+    SENSORS --> SCANNER
+    
+    SCANNER --> BY_ID
+    SCANNER --> BY_CAT
+    SCANNER --> FALLBACK
+    
+    BY_ID --> METHODS
+    BY_CAT --> METHODS
+    FALLBACK --> METHODS
+    
+    MAN_FIELDS -.-> SCANNER
+    
+    classDef folder fill:#f59e0b,color:#000,stroke:#d97706,stroke-width:2px
+    classDef manifest fill:#fbbf24,color:#000,stroke:#f59e0b,stroke-width:2px
+    classDef catalog fill:#22c55e,color:#fff,stroke:#15803d,stroke-width:2px
+    
+    class ENV,ROBOTS,VEHICLES,PROPS,SENSORS folder
+    class MAN_FIELDS manifest
+    class SCANNER,BY_ID,BY_CAT,FALLBACK,METHODS catalog
+        </div>
+
+        <!-- ==================== SESSION MANAGEMENT ==================== -->
+        <h2>💬 Chat Session Management</h2>
+        
+        <div class="description">
+            <h3>Incremental Scene Editing</h3>
+            <p>Each browser tab gets a <span class="highlight-blue">session</span> that persists the scene state. The LLM receives the <span class="highlight-green">previous SceneSpec</span> with each message, allowing incremental modifications:</p>
+            <ul>
+                <li><em>"Create an orchard with trees"</em> → New scene</li>
+                <li><em>"Add a tractor in the center"</em> → Modifies existing scene</li>
+                <li><em>"Move the camera higher"</em> → Updates camera pose</li>
+                <li><em>"Add a patrol path"</em> → Adds path to existing scene</li>
+            </ul>
+        </div>
+
+        <div class="mermaid">
+graph TB
+    subgraph BROWSER["🌐 Browser Tab"]
+        UI["Chat UI<br/>currentSessionId<br/>worldRevisions[]"]
+    end
+    
+    subgraph API_LAYER["FastAPI /chat"]
+        HANDLER["chat() handler<br/>Get or create session"]
+    end
+    
+    subgraph SESSION_MGR["SceneSessionManager"]
+        SESSIONS["_sessions: Dict<br/>session_id → SceneSession"]
+        
+        subgraph SESSION["SceneSession"]
+            SID["session_id: UUID"]
+            LAST_SCENE["last_scene: SceneSpec"]
+            VIEWER["viewer_process: subprocess"]
+            WORKER_REF["sim_worker: SimulationWorker"]
+            TEMP_XML["temp_xml_path: str"]
+        end
+    end
+    
+    subgraph SCENE_AGENT["SceneAgent"]
+        UPDATE["update_scene_spec(<br/>  previous: SceneSpec,<br/>  user_prompt: str<br/>)"]
+        
+        PROMPT_BUILD["Build edit prompt:<br/>CURRENT_SCENE_JSON: {...}<br/>USER_REQUEST: add a tractor"]
+    end
+    
+    UI --> |"POST {session_id, message}"| HANDLER
+    HANDLER --> |"get_or_create_session()"| SESSIONS
+    SESSIONS --> SESSION
+    
+    HANDLER --> |"previous = session.last_scene"| UPDATE
+    UPDATE --> PROMPT_BUILD
+    PROMPT_BUILD --> |"LLM generates"| UPDATE
+    UPDATE --> |"new SceneSpec"| HANDLER
+    
+    HANDLER --> |"session.last_scene = spec"| LAST_SCENE
+    HANDLER --> |"update_scene()"| VIEWER
+    HANDLER --> |"start sim"| WORKER_REF
+    
+    HANDLER --> |"response"| UI
+    
+    classDef browser fill:#3b82f6,color:#fff,stroke:#1d4ed8,stroke-width:2px
+    classDef api fill:#8b5cf6,color:#fff,stroke:#7c3aed,stroke-width:2px
+    classDef session fill:#06b6d4,color:#fff,stroke:#0891b2,stroke-width:2px
+    classDef agent fill:#22c55e,color:#fff,stroke:#15803d,stroke-width:2px
+    
+    class UI browser
+    class HANDLER api
+    class SESSIONS,SESSION,SID,LAST_SCENE,VIEWER,WORKER_REF,TEMP_XML session
+    class UPDATE,PROMPT_BUILD agent
+        </div>
+
+        <!-- ==================== SIMULATION WORKER ==================== -->
+        <h2>🎮 Simulation Worker</h2>
+        
+        <div class="description">
+            <h3>Headless MuJoCo Simulation</h3>
+            <p>The <span class="highlight-blue">SimulationWorker</span> runs a background thread that:</p>
+            <ul>
+                <li>Steps the physics at 50 Hz</li>
+                <li>Reads all sensors (IMU, encoders, etc.)</li>
+                <li>Renders camera views using EGL (headless OpenGL)</li>
+                <li>Runs the <span class="highlight-green">RowNavigator</span> for autonomous tractor control</li>
+                <li>Animates human walking gaits</li>
+            </ul>
+        </div>
+
+        <div class="mermaid">
+graph TB
+    subgraph WORKER["SimulationWorker Thread"]
+        INIT["__init__<br/>Load model/data<br/>Init renderer (EGL)"]
+        
+        LOOP["loop() - 50 Hz"]
+        
+        subgraph STEP["Each iteration"]
+            APPLY_CTRL["_apply_controls()<br/>- RowNavigator (tractor)<br/>- Walking gait (human)"]
+            MJ_STEP["mujoco.mj_step()"]
+            READ_SENS["_read_sensors()<br/>- All sensor values<br/>- Navigator status"]
+            RENDER_CAM["_render_camera()<br/>- Select driver_cam<br/>- Render to image"]
+        end
+        
+        LATEST["latest_sensors: dict<br/>latest_image: np.array"]
+    end
+    
+    subgraph NAVIGATOR["RowNavigator FSM"]
+        DRIVE["DRIVE_ROW<br/>Follow lane center<br/>Lateral error correction"]
+        TURN["TURN_AT_END<br/>U-turn at row end<br/>180° rotation"]
+        ENTER["ENTER_NEXT_ROW<br/>Align with new lane<br/>Wait for walls"]
+        DONE["DONE<br/>All rows complete"]
+        
+        DRIVE --> |"no walls detected"| TURN
+        TURN --> |"yaw ~ 180°"| ENTER
+        ENTER --> |"walls detected"| DRIVE
+        DRIVE --> |"row >= total"| DONE
+    end
+    
+    subgraph API_ENDPOINTS["API Endpoints"]
+        SENSORS_EP["GET /sensors/{session}<br/>→ latest_sensors"]
+        CAMERA_EP["GET /camera/{session}<br/>→ latest_image (JPEG)"]
+    end
+    
+    INIT --> LOOP
+    LOOP --> APPLY_CTRL
+    APPLY_CTRL --> MJ_STEP
+    MJ_STEP --> READ_SENS
+    READ_SENS --> RENDER_CAM
+    RENDER_CAM --> LOOP
+    
+    APPLY_CTRL --> |"if trees detected"| NAVIGATOR
+    NAVIGATOR --> |"v, omega"| APPLY_CTRL
+    
+    READ_SENS --> LATEST
+    RENDER_CAM --> LATEST
+    
+    LATEST --> SENSORS_EP
+    LATEST --> CAMERA_EP
+    
+    classDef worker fill:#06b6d4,color:#fff,stroke:#0891b2,stroke-width:2px
+    classDef nav fill:#22c55e,color:#fff,stroke:#15803d,stroke-width:2px
+    classDef api fill:#8b5cf6,color:#fff,stroke:#7c3aed,stroke-width:2px
+    
+    class INIT,LOOP,APPLY_CTRL,MJ_STEP,READ_SENS,RENDER_CAM,LATEST worker
+    class DRIVE,TURN,ENTER,DONE nav
+    class SENSORS_EP,CAMERA_EP api
+        </div>
+
+        <!-- ==================== MJCF EXPORT ==================== -->
+        <h2>📤 MJCF Export Pipeline</h2>
+        
+        <div class="description">
+            <h3>How SceneSpec becomes MuJoCo XML</h3>
+            <p>The <span class="highlight-red">MJCF Exporter</span> handles several complex transformations:</p>
+            <ul>
+                <li><span class="highlight-green">Layout resolution</span> - Grid and random layouts become explicit instances</li>
+                <li><span class="highlight-yellow">Asset inlining</span> - Each asset's MJCF is loaded and prefixed</li>
+                <li><span class="highlight-blue">Freejoint handling</span> - Dynamic objects need special placement</li>
+                <li><span class="highlight-purple">Path rendering</span> - Waypoint paths become visual box geoms</li>
+            </ul>
+        </div>
+
+        <div class="mermaid">
+graph TB
+    subgraph INPUT["Input"]
+        SPEC["SceneSpec"]
+        CATALOG_REF["AssetCatalog"]
+    end
+    
+    subgraph EXPORT_FUNC["scene_to_mjcf()"]
+        CREATE_ROOT["Create &lt;mujoco&gt; root<br/>+ compiler, option, visual"]
+        
+        CREATE_ASSET["Create &lt;asset&gt; section<br/>Default textures/materials"]
+        
+        CREATE_WB["Create &lt;worldbody&gt;<br/>Add lights"]
+        
+        subgraph ENV_LOAD["Load Environment"]
+            ENV_PATH["catalog.get_path(env_id)"]
+            ENV_MJCF["Read env MJCF"]
+            ENV_INLINE["Inline into worldbody"]
+        end
+        
+        subgraph OBJ_LOOP["For Each Object"]
+            LAYOUT_RES["_layout_instances()<br/>Grid/Random → explicit poses"]
+            
+            subgraph ASSET_LOAD["_load_asset_content()"]
+                READ_XML["Parse asset MJCF"]
+                COLLECT_NAMES["Collect all names"]
+                PREFIX_NAMES["Prefix all names<br/>tractor_0_wheel_fl"]
+                EXTRACT["Extract worldbody,<br/>assets, sensors, actuators"]
+            end
+            
+            FREEJOINT_CHECK{"Has freejoint?"}
+            PLACE_DIRECT["Place body directly<br/>in worldbody"]
+            WRAP_BODY["Wrap in positioning<br/>body element"]
+        end
+        
+        subgraph PATH_RENDER["Render Paths"]
+            PATH_LOOP["For each PathSpec"]
+            PATH_GEOMS["_render_path_geoms()<br/>Box strips between waypoints"]
+        end
+        
+        ADD_CAMERAS["Add cameras"]
+        ADD_ACTUATORS["Add &lt;actuator&gt; section"]
+        ADD_SENSORS["Add &lt;sensor&gt; section"]
+        
+        PRETTY["Pretty-print XML"]
+    end
+    
+    subgraph OUTPUT["Output"]
+        MJCF_XML["MJCF XML String"]
+    end
+    
+    SPEC --> CREATE_ROOT
+    CATALOG_REF --> ENV_PATH
+    
+    CREATE_ROOT --> CREATE_ASSET
+    CREATE_ASSET --> CREATE_WB
+    CREATE_WB --> ENV_LOAD
+    ENV_PATH --> ENV_MJCF
+    ENV_MJCF --> ENV_INLINE
+    
+    ENV_INLINE --> OBJ_LOOP
+    LAYOUT_RES --> ASSET_LOAD
+    READ_XML --> COLLECT_NAMES
+    COLLECT_NAMES --> PREFIX_NAMES
+    PREFIX_NAMES --> EXTRACT
+    EXTRACT --> FREEJOINT_CHECK
+    FREEJOINT_CHECK --> |"Yes"| PLACE_DIRECT
+    FREEJOINT_CHECK --> |"No"| WRAP_BODY
+    
+    OBJ_LOOP --> PATH_RENDER
+    PATH_LOOP --> PATH_GEOMS
+    
+    PATH_RENDER --> ADD_CAMERAS
+    ADD_CAMERAS --> ADD_ACTUATORS
+    ADD_ACTUATORS --> ADD_SENSORS
+    ADD_SENSORS --> PRETTY
+    PRETTY --> MJCF_XML
+    
+    classDef input fill:#f59e0b,color:#000,stroke:#d97706,stroke-width:2px
+    classDef process fill:#22c55e,color:#fff,stroke:#15803d,stroke-width:2px
+    classDef decision fill:#fbbf24,color:#000,stroke:#f59e0b,stroke-width:2px
+    classDef output fill:#ef4444,color:#fff,stroke:#dc2626,stroke-width:2px
+    
+    class SPEC,CATALOG_REF input
+    class CREATE_ROOT,CREATE_ASSET,CREATE_WB,ENV_PATH,ENV_MJCF,ENV_INLINE,LAYOUT_RES,READ_XML,COLLECT_NAMES,PREFIX_NAMES,EXTRACT,PLACE_DIRECT,WRAP_BODY,PATH_LOOP,PATH_GEOMS,ADD_CAMERAS,ADD_ACTUATORS,ADD_SENSORS,PRETTY process
+    class FREEJOINT_CHECK decision
+    class MJCF_XML output
+        </div>
+
+        <!-- ==================== API ENDPOINTS ==================== -->
+        <h2>🌐 API Endpoints</h2>
+        
+        <div class="description">
+            <table>
+                <tr>
+                    <th>Endpoint</th>
+                    <th>Method</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><code>/</code></td>
+                    <td>GET</td>
+                    <td>Chat UI (index.html)</td>
+                </tr>
+                <tr>
+                    <td><code>/health</code></td>
+                    <td>GET</td>
+                    <td>Health check with asset count</td>
+                </tr>
+                <tr>
+                    <td><code>/chat</code></td>
+                    <td>POST</td>
+                    <td>Send message, get updated scene</td>
+                </tr>
+                <tr>
+                    <td><code>/sensors/{session_id}</code></td>
+                    <td>GET</td>
+                    <td>Get latest sensor readings</td>
+                </tr>
+                <tr>
+                    <td><code>/camera/{session_id}</code></td>
+                    <td>GET</td>
+                    <td>Get camera image (JPEG)</td>
+                </tr>
+                <tr>
+                    <td><code>/generate_scene</code></td>
+                    <td>POST</td>
+                    <td>One-shot scene generation</td>
+                </tr>
+                <tr>
+                    <td><code>/assets</code></td>
+                    <td>GET</td>
+                    <td>List all assets</td>
+                </tr>
+                <tr>
+                    <td><code>/assets/search</code></td>
+                    <td>POST</td>
+                    <td>Search assets by query</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- ==================== AVAILABLE ASSETS ==================== -->
+        <h2>📦 Available Assets (29 Total)</h2>
+        
+        <div class="grid-2">
+            <div class="card">
+                <h4>🌳 Environments</h4>
+                <ul>
+                    <li><code>orchard</code> - Farm orchard with ground</li>
+                    <li><code>terrain</code> - Natural terrain with hills</li>
+                    <li><code>desert</code> - Sand dunes and rocks</li>
+                    <li><code>urban</code> - City with buildings</li>
+                    <li><code>mountain</code> - Peaks and boulders</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h4>🚜 Vehicles</h4>
+                <ul>
+                    <li><code>tractor</code> - Dynamic farm tractor with freejoint</li>
+                    <li><code>tractor_red</code> - Red variant</li>
+                    <li><code>tank</code> - T-90 with turret</li>
+                    <li><code>apc</code> - 8-wheel armored carrier</li>
+                    <li><code>car</code>, <code>truck</code>, <code>forklift</code>, <code>bicycle</code></li>
+                </ul>
+            </div>
+            <div class="card">
+                <h4>🌲 Nature & Props</h4>
+                <ul>
+                    <li><code>trees</code>, <code>pine_tree</code>, <code>oak_tree</code></li>
+                    <li><code>bushes</code> - Shrub vegetation</li>
+                    <li><code>crate_wooden_small</code>, <code>barrel</code>, <code>pallet</code></li>
+                    <li><code>road</code> - Road section with markings</li>
+                    <li><code>bird</code>, <code>cow</code></li>
+                </ul>
+            </div>
+            <div class="card">
+                <h4>👤 People & Sensors</h4>
+                <ul>
+                    <li><code>human</code> - Articulated humanoid with walking gait</li>
+                    <li><code>rgb_camera</code>, <code>video_camera</code>, <code>cam_top_down</code></li>
+                    <li><code>imu</code> - Inertial measurement unit</li>
+                    <li><code>lidar</code> - LiDAR sensor</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ==================== FILE STRUCTURE ==================== -->
+        <h2>📁 Project Structure</h2>
+        
+        <div class="description">
+            <pre style="background: #0f172a; padding: 15px; border-radius: 8px; overflow-x: auto; font-size: 13px;">
+neoscene/
+├── neoscene/
+│   ├── app/
+│   │   ├── main.py              # CLI entry point
+│   │   ├── api.py               # FastAPI server
+│   │   └── static/              # Chat UI (HTML/CSS/JS)
+│   ├── core/
+│   │   ├── asset_catalog.py     # Asset discovery and search
+│   │   ├── asset_manifest.py    # Manifest schema
+│   │   ├── scene_schema.py      # SceneSpec + PathSpec + TaskSpec
+│   │   ├── scene_agent.py       # LLM orchestration
+│   │   ├── row_navigator.py     # Autonomous navigation FSM
+│   │   ├── llm_client.py        # Gemini wrapper
+│   │   └── errors.py            # Custom exceptions
+│   ├── exporters/
+│   │   └── mjcf_exporter.py     # SceneSpec → MJCF XML
+│   ├── backends/
+│   │   ├── mujoco_runner.py     # MuJoCo viewer launch
+│   │   └── session_manager.py   # Session + SimulationWorker
+│   └── assets/                  # 29 assets
+│       ├── environments/        # orchard, terrain, desert, urban, mountain
+│       ├── robots/              # tractor, tractor_red
+│       ├── vehicle/             # tank, apc, car, truck, forklift, bicycle
+│       ├── props/               # trees, crates, barrels, human, cow, road
+│       └── sensors/             # cameras, imu, lidar
+├── config/
+│   └── llm_config.yaml
+├── examples/                    # Example scenes
+├── docs/                        # Documentation
+└── tests/                       # Test suite
+            </pre>
+        </div>
+
+        <div class="description" style="margin-top: 40px; text-align: center; background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);">
+            <p style="font-size: 1.2rem; margin: 0;">
+                <strong>🚀 Start the Chat UI:</strong> 
+                <code style="background: rgba(0,0,0,0.3); padding: 8px 16px; border-radius: 6px; margin-left: 10px;">
+                    python -m neoscene.app.main --chat-ui
+                </code>
+            </p>
+            <p style="margin-top: 10px; color: #a5b4fc;">
+                Then open <strong>http://localhost:8000</strong> in your browser
+            </p>
+        </div>
+
+    </div>
+
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'dark',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            },
+            sequence: {
+                useMaxWidth: true
+            }
+        });
+    </script>
+</body>
+</html>
+

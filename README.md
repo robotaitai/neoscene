@@ -12,8 +12,13 @@ Neoscene converts natural language descriptions into valid MuJoCo scenes. Descri
 
 - 🗣️ **Natural language input**: Describe scenes in plain English
 - 🧠 **LLM-powered**: Uses Gemini to understand and compose scenes
-- 📦 **Asset catalog**: Extensible library of environments, robots, and props
+- 📦 **Asset catalog**: 29+ assets (vehicles, environments, props, sensors)
 - 🎯 **Smart layouts**: Grid and random placement patterns
+- 🛤️ **Navigation paths**: Define waypoint paths for autonomous driving
+- 📋 **Task system**: High-level tasks (path_follow, patrol)
+- 💬 **Chat UI**: Incremental scene editing with persistent memory
+- 📹 **Live sensors**: Real-time sensor data and camera streaming
+- 🚜 **Dynamic robots**: Tractor with RowNavigator FSM, walking humans
 - 🔌 **REST API**: FastAPI server for integration
 - 🎮 **MuJoCo ready**: Direct export to MJCF XML
 
@@ -39,22 +44,31 @@ Get your API key at: https://makersuite.google.com/app/apikey
 
 ### 3. Generate Your First Scene
 
-**Option A: CLI with text prompt**
+**Option A: Chat UI (Recommended)**
+```bash
+# Start the interactive chat interface
+python -m neoscene.app.main --chat-ui
+
+# Open http://localhost:8000 in your browser
+# Try: "Create an orchard with trees and a tractor"
+```
+
+**Option B: CLI with text prompt**
 ```bash
 python -m neoscene.app.main --generate "An orchard with a tractor and some crates"
 ```
 
-**Option B: Run from JSON file**
+**Option C: Run from JSON file**
 ```bash
 python -m neoscene.app.main --scene-json examples/orchard_scene.json
 ```
 
-**Option C: API server**
+**Option D: API server**
 ```bash
-# Terminal 1: Start server
+# Start server
 python -m neoscene.app.main --api
 
-# Terminal 2: Generate scene
+# Generate scene via curl
 curl -X POST http://localhost:8000/generate_scene \
   -H "Content-Type: application/json" \
   -d '{"prompt": "A terrain with trees and a red tractor"}'
@@ -211,14 +225,16 @@ Quick summary:
 }
 ```
 
-## Available Assets
+## Available Assets (29 total)
 
 | Category | Assets |
 |----------|--------|
-| Environments | `orchard`, `terrain` |
-| Robots | `tractor_bluewhite`, `tractor_red` |
-| Props | `crate_wooden_small`, `trees`, `bird` |
-| Sensors | `cam_top_down` |
+| **Environments** | `orchard`, `terrain`, `desert`, `urban`, `mountain` |
+| **Vehicles** | `tractor`, `tractor_red`, `tank`, `apc`, `car`, `truck`, `forklift`, `bicycle` |
+| **Nature** | `trees`, `pine_tree`, `oak_tree`, `bushes` |
+| **Props** | `crate_wooden_small`, `barrel`, `pallet`, `road` |
+| **Persons/Animals** | `human` (articulated), `cow`, `bird` |
+| **Sensors** | `rgb_camera`, `video_camera`, `cam_top_down`, `imu`, `lidar` |
 
 ## Configuration
 
@@ -256,6 +272,7 @@ ruff format neoscene/
 
 ## Documentation
 
+- [🎨 **Architecture Diagrams**](docs/architecture.html) - Interactive system diagrams (open in browser)
 - [Architecture](docs/architecture.md) - System design overview
 - [SceneSpec Schema](docs/scene-spec.md) - JSON schema reference
 - [Asset Manifest Spec](docs/asset-manifest-spec.md) - Asset format
