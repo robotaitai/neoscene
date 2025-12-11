@@ -3,7 +3,6 @@
   <head>
     <meta charset="utf-8" />
     <title>neoscene chat</title>
-    <link rel="stylesheet" href="/static/styles.css" />
     <style>
       body {
         margin: 0;
@@ -18,16 +17,20 @@
       }
 
       .chat-pane {
-        flex: 2;
+        flex: 1;
         display: flex;
         flex-direction: column;
         border-right: 1px solid #333;
+        min-width: 400px;
       }
 
       .scene-pane {
         flex: 1;
         padding: 16px;
         box-sizing: border-box;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
       }
 
       .chat-log {
@@ -38,20 +41,19 @@
 
       .msg {
         margin-bottom: 8px;
-        max-width: 80%;
-        padding: 8px 10px;
+        max-width: 85%;
+        padding: 8px 12px;
         border-radius: 8px;
       }
 
       .msg-user {
         background: #2f6feb;
-        align-self: flex-end;
+        margin-left: auto;
       }
 
       .msg-assistant {
         background: #222;
         border: 1px solid #444;
-        align-self: flex-start;
       }
 
       .chat-input {
@@ -62,33 +64,121 @@
 
       #chat-message {
         flex: 1;
-        padding: 8px;
+        padding: 10px;
         border-radius: 4px;
         border: 1px solid #444;
         background: #000;
         color: #eee;
+        font-size: 14px;
       }
 
       #chat-send {
         margin-left: 8px;
-        padding: 8px 16px;
+        padding: 10px 20px;
         border-radius: 4px;
         border: 1px solid #2f6feb;
         background: #2f6feb;
         color: white;
         cursor: pointer;
+        font-size: 14px;
+      }
+
+      #chat-send:disabled {
+        background: #555;
+        border-color: #555;
+        cursor: wait;
       }
 
       .scene-card {
         border-radius: 8px;
         border: 1px solid #333;
         padding: 12px;
+        margin-bottom: 12px;
+      }
+
+      .scene-card h2 {
+        margin: 0 0 12px 0;
+        font-size: 16px;
+        color: #888;
       }
 
       .hint {
-        margin-top: 12px;
         font-size: 12px;
-        color: #aaa;
+        color: #666;
+        margin-bottom: 12px;
+      }
+
+      /* JSON Viewer */
+      .json-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+
+      .json-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 8px 8px 0 0;
+        cursor: pointer;
+      }
+
+      .json-header:hover {
+        background: #222;
+      }
+
+      .json-header h3 {
+        margin: 0;
+        font-size: 14px;
+        color: #888;
+      }
+
+      .json-toggle {
+        font-size: 12px;
+        color: #666;
+      }
+
+      .json-content {
+        flex: 1;
+        background: #0a0a0a;
+        border: 1px solid #333;
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        overflow: auto;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .json-content pre {
+        margin: 0;
+        padding: 12px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+      .json-content.collapsed {
+        display: none;
+      }
+
+      /* Syntax highlighting */
+      .json-key { color: #9cdcfe; }
+      .json-string { color: #ce9178; }
+      .json-number { color: #b5cea8; }
+      .json-boolean { color: #569cd6; }
+      .json-null { color: #569cd6; }
+
+      #scene-status p {
+        margin: 4px 0;
+        font-size: 14px;
+      }
+
+      #scene-status strong {
+        color: #888;
       }
     </style>
   </head>
@@ -107,13 +197,23 @@
       </div>
       <div class="scene-pane">
         <div class="scene-card">
-          <h2>Scene status</h2>
-          <div id="scene-status">No scene yet.</div>
+          <h2>Scene Status</h2>
+          <div id="scene-status">No scene yet. Send a message to create one.</div>
         </div>
+        
         <p class="hint">
-          MuJoCo runs in a separate window on this machine.  
-          Every message here generates a new scene and updates that window.
+          💡 MuJoCo viewer runs in a separate window. The scene evolves with each message.
         </p>
+
+        <div class="json-section">
+          <div class="json-header" onclick="toggleJson()">
+            <h3>📄 SceneSpec JSON</h3>
+            <span class="json-toggle" id="json-toggle-text">▼ Show</span>
+          </div>
+          <div class="json-content collapsed" id="json-content">
+            <pre id="json-display">No scene generated yet.</pre>
+          </div>
+        </div>
       </div>
     </div>
 
