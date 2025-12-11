@@ -216,30 +216,26 @@ async def chat(req: ChatRequest):
     Send a natural language message to create or modify a scene.
     The MuJoCo viewer will automatically launch/restart with the new scene.
 
-    If a previous scene exists in the session, the LLM will modify it
-    based on your message. Otherwise, it creates a new scene.
+    - First message: Creates a new scene from scratch.
+    - Subsequent messages: Edits the existing scene incrementally.
+    - Say "start over" or "new scene" to reset.
     """
-    if not req.message.strip():
+    message = req.message.strip()
+    if not message:
         raise HTTPException(status_code=400, detail="Message cannot be empty")
 
     # Get or create session
     session = session_manager.get_or_create_session(req.session_id)
 
-    # Get previous scene for incremental updates
-    previous_scene = session.last_scene
-    
-    if previous_scene:
-        logger.info(f"[{session.session_id}] Modifying '{previous_scene.name}': '{req.message[:100]}...'")
-    else:
-        logger.info(f"[{session.session_id}] Creating new scene: '{req.message[:100]}...'")
+    logger.info(f"[{session.session_id}] Chat: '{message[:100]}...'")
 
-    # Pass previous scene to agent for incremental updates
+    # Use update_scene_spec for incremental editing
     try:
-        spec = agent.generate_and_repair(req.message, previous_scene=previous_scene)
+        spec = agent.update_scene_spec(session.last_scene, message)
     except SceneGenerationError as e:
-        raise HTTPException(status_code=500, detail=f"Failed to generate scene: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to update scene: {e}")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to generate scene: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to update scene: {e}")
 
     # Update viewer
     session_manager.update_scene(session, spec)

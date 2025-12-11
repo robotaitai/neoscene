@@ -515,6 +515,91 @@ Remember to use ONLY asset_id values from the Available Assets list."""
 
         return self._parse_and_validate(raw_response, original_prompt)
 
+    def update_scene_spec(
+        self,
+        previous: Optional[SceneSpec],
+        user_prompt: str,
+    ) -> SceneSpec:
+        """Update an existing scene or create a new one.
+
+        If previous is None, behaves like generate_scene_spec (creates new scene).
+        Otherwise, asks the LLM to MODIFY the existing scene according to
+        user_prompt and returns a NEW SceneSpec.
+
+        Args:
+            previous: The previous scene to modify, or None to create new.
+            user_prompt: Natural language description of desired changes.
+
+        Returns:
+            Updated or new SceneSpec.
+
+        Raises:
+            LLMError: If LLM generation fails.
+            SceneValidationError: If the generated JSON is invalid.
+        """
+        if previous is None:
+            logger.info(f"No previous scene, creating new: '{user_prompt[:100]}...'")
+            return self.generate_and_repair(user_prompt)
+
+        logger.info(f"Editing scene '{previous.name}': '{user_prompt[:100]}...'")
+
+        # Build editing prompt with explicit instructions
+        prev_json = json.dumps(previous.model_dump(), indent=2)
+
+        system_instructions = f"""You are a MuJoCo SCENE EDITOR.
+
+You receive:
+1. The CURRENT scene specification as JSON (SceneSpec).
+2. A USER REQUEST describing desired changes.
+
+Your job:
+- Apply the requested changes to the CURRENT scene.
+- Keep everything else the same.
+- If the user says things like "start over", "new scene", "clear all":
+  then you may ignore the current scene and build a new one.
+- Use only assets that exist in the provided asset catalog.
+
+{self._asset_summary}
+
+{self._schema_summary}
+
+IMPORTANT:
+- Always respond with VALID JSON matching the SceneSpec schema.
+- DO NOT wrap JSON in markdown, no explanations, JSON ONLY.
+- Use ONLY asset_id values from the Available Assets list above.
+"""
+
+        user_block = f"""CURRENT_SCENE_JSON:
+{prev_json}
+
+USER_REQUEST:
+{user_prompt}
+
+Return the FULL UPDATED SceneSpec JSON only."""
+
+        full_prompt = system_instructions + "\n\n" + user_block
+
+        try:
+            raw_response = self.llm.generate(full_prompt, temperature=0.3)
+            logger.debug(f"LLM edit response received: {len(raw_response)} chars")
+        except LLMAPIError as e:
+            logger.error(f"LLM edit failed: {e}")
+            raise LLMError(
+                f"LLM edit failed: {e}",
+                llm_provider="gemini",
+                original_error=e,
+            )
+
+        spec = self._parse_and_validate(raw_response, user_prompt)
+
+        logger.info(
+            f"Updated scene: name='{spec.name}', "
+            f"env='{spec.environment.asset_id}', "
+            f"objects={len(spec.objects)}, cameras={len(spec.cameras)}"
+        )
+
+        return spec
+
     def suggest_scene(self, user_prompt: str) -> Dict[str, Any]:
         """Get a scene suggestion as a dictionary (for debugging/preview).
 
