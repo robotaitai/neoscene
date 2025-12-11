@@ -1,0 +1,21 @@
+{
+  "asset_id": "cow",
+  "name": "Cow",
+  "category": "animal",
+  "tags": ["cow", "cattle", "farm", "animal", "livestock"],
+  "fallback_for": ["cattle", "livestock", "farm_animal"],
+  "sensor_type": null,
+  "availability": "local",
+  "remote_url": null,
+  "mjcf_include": "mjcf/cow.xml",
+  "physical_size": [2.5, 1.0, 1.5],
+  "placement_rules": {
+    "allow_on": ["ground"],
+    "min_clearance": 0.5
+  },
+  "semantics": {
+    "human_names": ["cow", "cattle", "bull"],
+    "usage": ["farm scenes", "pasture", "agriculture"]
+  }
+}
+

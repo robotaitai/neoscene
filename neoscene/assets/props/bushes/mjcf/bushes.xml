@@ -1,0 +1,19 @@
+<mujoco>
+  <!-- Bush / shrub -->
+  <asset>
+    <material name="bush_green" rgba="0.2 0.45 0.15 1"/>
+    <material name="bush_dark" rgba="0.15 0.35 0.1 1"/>
+  </asset>
+  
+  <worldbody>
+    <body name="bush">
+      <!-- Multiple overlapping spheres for organic bush shape -->
+      <geom name="bush_main" type="sphere" size="0.5" pos="0 0 0.5" material="bush_green"/>
+      <geom name="bush_top" type="sphere" size="0.35" pos="0 0 0.9" material="bush_green"/>
+      <geom name="bush_left" type="sphere" size="0.4" pos="-0.3 0.2 0.45" material="bush_dark"/>
+      <geom name="bush_right" type="sphere" size="0.4" pos="0.3 -0.15 0.5" material="bush_dark"/>
+      <geom name="bush_front" type="sphere" size="0.35" pos="0.2 0.3 0.55" material="bush_green"/>
+    </body>
+  </worldbody>
+</mujoco>
+

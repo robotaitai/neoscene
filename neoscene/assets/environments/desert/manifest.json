@@ -1,0 +1,21 @@
+{
+  "asset_id": "desert",
+  "name": "Desert Environment",
+  "category": "environment",
+  "tags": ["desert", "sand", "arid", "outdoor", "rocks"],
+  "fallback_for": ["sahara", "dunes", "wasteland"],
+  "sensor_type": null,
+  "availability": "local",
+  "remote_url": null,
+  "mjcf_include": "mjcf/desert.xml",
+  "physical_size": [200, 200, 20],
+  "placement_rules": {
+    "allow_on": [],
+    "min_clearance": 0.0
+  },
+  "semantics": {
+    "human_names": ["desert", "sand dunes", "arid terrain"],
+    "usage": ["outdoor scenes", "military training", "off-road"]
+  }
+}
+

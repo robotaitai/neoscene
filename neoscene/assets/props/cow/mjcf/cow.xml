@@ -1,0 +1,39 @@
+<mujoco>
+  <!-- Cow (primitive approximation) -->
+  <asset>
+    <material name="cow_body" rgba="0.9 0.85 0.8 1"/>
+    <material name="cow_spots" rgba="0.2 0.15 0.1 1"/>
+    <material name="cow_hooves" rgba="0.15 0.12 0.1 1"/>
+  </asset>
+  
+  <worldbody>
+    <body name="cow_body" pos="0 0 0.8">
+      <!-- Main body -->
+      <geom name="torso" type="capsule" size="0.4 0.8" euler="0 90 0" pos="0 0 0" material="cow_body"/>
+      
+      <!-- Head -->
+      <geom name="head" type="ellipsoid" size="0.25 0.15 0.18" pos="1.2 0 0.1" material="cow_body"/>
+      <geom name="snout" type="ellipsoid" size="0.1 0.08 0.1" pos="1.4 0 0" material="cow_spots"/>
+      
+      <!-- Spots -->
+      <geom name="spot1" type="ellipsoid" size="0.15 0.12 0.02" pos="0.2 0.3 0.35" material="cow_spots"/>
+      <geom name="spot2" type="ellipsoid" size="0.12 0.1 0.02" pos="-0.3 -0.25 0.3" material="cow_spots"/>
+      
+      <!-- Legs -->
+      <geom name="leg_fl" type="capsule" size="0.08 0.35" pos="0.6 0.25 -0.5" material="cow_body"/>
+      <geom name="leg_fr" type="capsule" size="0.08 0.35" pos="0.6 -0.25 -0.5" material="cow_body"/>
+      <geom name="leg_bl" type="capsule" size="0.08 0.35" pos="-0.5 0.25 -0.5" material="cow_body"/>
+      <geom name="leg_br" type="capsule" size="0.08 0.35" pos="-0.5 -0.25 -0.5" material="cow_body"/>
+      
+      <!-- Hooves -->
+      <geom name="hoof_fl" type="cylinder" size="0.06 0.05" pos="0.6 0.25 -0.9" material="cow_hooves"/>
+      <geom name="hoof_fr" type="cylinder" size="0.06 0.05" pos="0.6 -0.25 -0.9" material="cow_hooves"/>
+      <geom name="hoof_bl" type="cylinder" size="0.06 0.05" pos="-0.5 0.25 -0.9" material="cow_hooves"/>
+      <geom name="hoof_br" type="cylinder" size="0.06 0.05" pos="-0.5 -0.25 -0.9" material="cow_hooves"/>
+      
+      <!-- Tail -->
+      <geom name="tail" type="capsule" size="0.03 0.4" pos="-1.1 0 0" euler="0 70 0" material="cow_body"/>
+    </body>
+  </worldbody>
+</mujoco>
+

@@ -1,0 +1,22 @@
+<mujoco>
+  <!-- Road section -->
+  <asset>
+    <material name="asphalt" rgba="0.2 0.2 0.22 1"/>
+    <material name="road_line" rgba="0.9 0.9 0.85 1"/>
+  </asset>
+  
+  <worldbody>
+    <body name="road_section">
+      <!-- Main road surface -->
+      <geom name="road_surface" type="box" size="5 2 0.05" pos="0 0 0.05" material="asphalt" friction="1.0 0.5 0.1"/>
+      
+      <!-- Center line -->
+      <geom name="center_line" type="box" size="4 0.05 0.001" pos="0 0 0.101" material="road_line"/>
+      
+      <!-- Edge lines -->
+      <geom name="edge_left" type="box" size="5 0.08 0.001" pos="0 1.8 0.101" material="road_line"/>
+      <geom name="edge_right" type="box" size="5 0.08 0.001" pos="0 -1.8 0.101" material="road_line"/>
+    </body>
+  </worldbody>
+</mujoco>
+

@@ -1,0 +1,25 @@
+{
+  "asset_id": "tank",
+  "name": "T-90 Tank",
+  "category": "vehicle",
+  "tags": ["tank", "military", "armored", "tracked", "heavy"],
+  "fallback_for": ["t90", "battle_tank", "armored_vehicle"],
+  "sensor_type": null,
+  "availability": "local",
+  "remote_url": null,
+  "mjcf_include": "mjcf/tank.xml",
+  "physical_size": [7.0, 3.5, 2.5],
+  "placement_rules": {
+    "allow_on": ["ground"],
+    "min_clearance": 1.0
+  },
+  "semantics": {
+    "human_names": ["tank", "T-90", "battle tank", "armored vehicle"],
+    "usage": ["military", "defense", "combat"]
+  },
+  "extra": {
+    "mesh_available": "t-90am.zip/source/untitled.fbx",
+    "conversion_needed": "FBX to OBJ"
+  }
+}
+

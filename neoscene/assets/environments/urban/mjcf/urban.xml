@@ -1,0 +1,35 @@
+<mujoco>
+  <!-- Urban environment with buildings and streets -->
+  <asset>
+    <material name="asphalt" rgba="0.25 0.25 0.28 1"/>
+    <material name="concrete" rgba="0.6 0.58 0.55 1"/>
+    <material name="brick" rgba="0.6 0.35 0.25 1"/>
+    <material name="glass" rgba="0.3 0.4 0.5 0.6"/>
+  </asset>
+  
+  <worldbody>
+    <body name="urban_terrain">
+      <!-- Street surface -->
+      <geom name="street" type="plane" size="100 100 0.1" material="asphalt" friction="1.0 0.5 0.1"/>
+      
+      <!-- Buildings - Block 1 -->
+      <geom name="building_1" type="box" size="8 6 10" pos="20 15 10" material="concrete"/>
+      <geom name="building_1_windows" type="box" size="8.1 0.1 8" pos="20 21 11" material="glass"/>
+      
+      <!-- Buildings - Block 2 -->
+      <geom name="building_2" type="box" size="10 8 15" pos="-25 20 15" material="brick"/>
+      
+      <!-- Buildings - Block 3 -->
+      <geom name="building_3" type="box" size="6 10 8" pos="15 -25 8" material="concrete"/>
+      
+      <!-- Buildings - Block 4 -->
+      <geom name="building_4" type="box" size="12 5 20" pos="-20 -15 20" material="brick"/>
+      <geom name="building_4_roof" type="box" size="13 6 0.5" pos="-20 -15 40.5" material="concrete"/>
+      
+      <!-- Sidewalks -->
+      <geom name="sidewalk_1" type="box" size="40 1 0.15" pos="0 8 0.15" material="concrete"/>
+      <geom name="sidewalk_2" type="box" size="1 40 0.15" pos="8 0 0.15" material="concrete"/>
+    </body>
+  </worldbody>
+</mujoco>
+

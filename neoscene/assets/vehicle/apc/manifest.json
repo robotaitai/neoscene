@@ -1,0 +1,25 @@
+{
+  "asset_id": "apc",
+  "name": "APC (Armored Personnel Carrier)",
+  "category": "vehicle",
+  "tags": ["apc", "military", "armored", "wheeled", "transport"],
+  "fallback_for": ["bumerang", "armored_carrier", "troop_carrier"],
+  "sensor_type": null,
+  "availability": "local",
+  "remote_url": null,
+  "mjcf_include": "mjcf/apc.xml",
+  "physical_size": [8.0, 3.0, 3.0],
+  "placement_rules": {
+    "allow_on": ["ground"],
+    "min_clearance": 1.0
+  },
+  "semantics": {
+    "human_names": ["APC", "armored carrier", "troop transport", "Bumerang"],
+    "usage": ["military", "transport", "patrol"]
+  },
+  "extra": {
+    "mesh_available": "k-17-bumerang.zip",
+    "conversion_needed": "Nested zip + FBX to OBJ"
+  }
+}
+

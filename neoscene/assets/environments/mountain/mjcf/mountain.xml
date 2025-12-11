@@ -1,0 +1,36 @@
+<mujoco>
+  <!-- Mountain terrain environment -->
+  <asset>
+    <material name="grass" rgba="0.35 0.5 0.25 1"/>
+    <material name="rock_gray" rgba="0.45 0.45 0.5 1"/>
+    <material name="rock_brown" rgba="0.5 0.4 0.35 1"/>
+    <material name="snow" rgba="0.95 0.95 0.98 1"/>
+  </asset>
+  
+  <worldbody>
+    <body name="mountain_terrain">
+      <!-- Base ground -->
+      <geom name="ground" type="plane" size="100 100 0.1" material="grass" friction="1.0 0.5 0.1"/>
+      
+      <!-- Mountain peaks -->
+      <geom name="peak_1" type="ellipsoid" size="25 20 30" pos="40 30 -5" material="rock_gray"/>
+      <geom name="peak_1_snow" type="ellipsoid" size="15 12 8" pos="40 30 28" material="snow"/>
+      
+      <geom name="peak_2" type="ellipsoid" size="30 25 25" pos="-35 40 -8" material="rock_brown"/>
+      <geom name="peak_2_snow" type="ellipsoid" size="18 15 6" pos="-35 40 20" material="snow"/>
+      
+      <geom name="peak_3" type="ellipsoid" size="20 18 20" pos="20 -40 -5" material="rock_gray"/>
+      
+      <!-- Hills -->
+      <geom name="hill_1" type="ellipsoid" size="15 12 8" pos="-20 -25 -2" material="grass"/>
+      <geom name="hill_2" type="ellipsoid" size="12 10 6" pos="50 -10 -2" material="grass"/>
+      <geom name="hill_3" type="ellipsoid" size="18 15 10" pos="-50 0 -3" material="rock_brown"/>
+      
+      <!-- Boulders -->
+      <geom name="boulder_1" type="ellipsoid" size="3 2.5 2" pos="10 10 1" material="rock_gray"/>
+      <geom name="boulder_2" type="ellipsoid" size="2 3 1.5" pos="-15 5 0.8" material="rock_brown"/>
+      <geom name="boulder_3" type="box" size="2 1.5 1.2" pos="5 -15 0.6" euler="10 5 15" material="rock_gray"/>
+    </body>
+  </worldbody>
+</mujoco>
+

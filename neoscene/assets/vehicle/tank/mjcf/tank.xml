@@ -1,0 +1,56 @@
+<mujoco>
+  <!-- T-90 Tank (primitive approximation) -->
+  <compiler angle="degree"/>
+  
+  <asset>
+    <material name="tank_body" rgba="0.3 0.35 0.25 1"/>
+    <material name="tank_turret" rgba="0.35 0.4 0.3 1"/>
+    <material name="tank_track" rgba="0.15 0.15 0.15 1"/>
+    <material name="tank_barrel" rgba="0.2 0.2 0.2 1"/>
+  </asset>
+  
+  <worldbody>
+    <body name="tank_hull">
+      <freejoint name="tank_root"/>
+      <inertial pos="0 0 0.5" mass="46000" diaginertia="50000 80000 40000"/>
+      
+      <!-- Hull -->
+      <geom name="hull_main" type="box" size="3.5 1.6 0.6" pos="0 0 0.8" material="tank_body"/>
+      <geom name="hull_front" type="box" size="0.8 1.4 0.4" pos="3.0 0 0.6" euler="0 -30 0" material="tank_body"/>
+      <geom name="hull_rear" type="box" size="0.6 1.5 0.5" pos="-3.2 0 0.7" material="tank_body"/>
+      
+      <!-- Track assemblies -->
+      <geom name="track_left" type="box" size="3.0 0.3 0.5" pos="0 1.5 0.5" material="tank_track"/>
+      <geom name="track_right" type="box" size="3.0 0.3 0.5" pos="0 -1.5 0.5" material="tank_track"/>
+      
+      <!-- Turret -->
+      <body name="turret" pos="0 0 1.4">
+        <joint name="turret_yaw" type="hinge" axis="0 0 1" range="-180 180" damping="1000"/>
+        <inertial pos="0 0 0" mass="5000" diaginertia="2000 2000 2000"/>
+        <geom name="turret_base" type="cylinder" size="1.2 0.4" material="tank_turret"/>
+        <geom name="turret_top" type="box" size="1.0 0.8 0.3" pos="0.2 0 0.5" material="tank_turret"/>
+        
+        <!-- Gun barrel -->
+        <body name="barrel" pos="1.5 0 0.3">
+          <joint name="barrel_pitch" type="hinge" axis="0 1 0" range="-10 30" damping="500"/>
+          <geom name="gun" type="cylinder" size="0.08 2.5" euler="0 90 0" pos="1.5 0 0" material="tank_barrel"/>
+        </body>
+      </body>
+      
+      <!-- Driver camera -->
+      <camera name="driver_cam" pos="2.5 0 1.2" euler="0 -5 0" fovy="60"/>
+      <site name="imu_site" pos="0 0 1.0" size="0.05"/>
+    </body>
+  </worldbody>
+  
+  <actuator>
+    <velocity name="turret_motor" joint="turret_yaw" kv="2000"/>
+    <position name="barrel_motor" joint="barrel_pitch" kp="1000"/>
+  </actuator>
+  
+  <sensor>
+    <accelerometer name="tank_imu" site="imu_site"/>
+    <gyro name="tank_gyro" site="imu_site"/>
+  </sensor>
+</mujoco>
+

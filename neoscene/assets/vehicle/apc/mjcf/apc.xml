@@ -1,0 +1,74 @@
+<mujoco>
+  <!-- APC - Armored Personnel Carrier (primitive approximation) -->
+  <compiler angle="degree"/>
+  
+  <asset>
+    <material name="apc_body" rgba="0.3 0.35 0.25 1"/>
+    <material name="apc_wheel" rgba="0.15 0.15 0.15 1"/>
+    <material name="apc_window" rgba="0.1 0.2 0.3 0.8"/>
+  </asset>
+  
+  <worldbody>
+    <body name="apc_hull">
+      <freejoint name="apc_root"/>
+      <inertial pos="0 0 0.8" mass="20000" diaginertia="20000 40000 15000"/>
+      
+      <!-- Main hull -->
+      <geom name="hull" type="box" size="4.0 1.4 0.8" pos="0 0 1.2" material="apc_body"/>
+      <geom name="hull_top" type="box" size="3.5 1.2 0.4" pos="-0.3 0 2.0" material="apc_body"/>
+      <geom name="hull_front" type="box" size="0.6 1.2 0.6" pos="3.5 0 1.0" euler="0 -20 0" material="apc_body"/>
+      
+      <!-- Windows -->
+      <geom name="window_front" type="box" size="0.02 0.8 0.3" pos="3.8 0 1.5" euler="0 -20 0" material="apc_window"/>
+      
+      <!-- 8 wheels (4 per side) -->
+      <body name="wheel_1l" pos="2.8 1.5 0.5">
+        <joint name="axle_1l" type="hinge" axis="0 1 0"/>
+        <geom type="cylinder" size="0.5 0.2" euler="90 0 0" material="apc_wheel" mass="100"/>
+      </body>
+      <body name="wheel_2l" pos="1.0 1.5 0.5">
+        <joint name="axle_2l" type="hinge" axis="0 1 0"/>
+        <geom type="cylinder" size="0.5 0.2" euler="90 0 0" material="apc_wheel" mass="100"/>
+      </body>
+      <body name="wheel_3l" pos="-1.0 1.5 0.5">
+        <joint name="axle_3l" type="hinge" axis="0 1 0"/>
+        <geom type="cylinder" size="0.5 0.2" euler="90 0 0" material="apc_wheel" mass="100"/>
+      </body>
+      <body name="wheel_4l" pos="-2.8 1.5 0.5">
+        <joint name="axle_4l" type="hinge" axis="0 1 0"/>
+        <geom type="cylinder" size="0.5 0.2" euler="90 0 0" material="apc_wheel" mass="100"/>
+      </body>
+      
+      <body name="wheel_1r" pos="2.8 -1.5 0.5">
+        <joint name="axle_1r" type="hinge" axis="0 1 0"/>
+        <geom type="cylinder" size="0.5 0.2" euler="90 0 0" material="apc_wheel" mass="100"/>
+      </body>
+      <body name="wheel_2r" pos="1.0 -1.5 0.5">
+        <joint name="axle_2r" type="hinge" axis="0 1 0"/>
+        <geom type="cylinder" size="0.5 0.2" euler="90 0 0" material="apc_wheel" mass="100"/>
+      </body>
+      <body name="wheel_3r" pos="-1.0 -1.5 0.5">
+        <joint name="axle_3r" type="hinge" axis="0 1 0"/>
+        <geom type="cylinder" size="0.5 0.2" euler="90 0 0" material="apc_wheel" mass="100"/>
+      </body>
+      <body name="wheel_4r" pos="-2.8 -1.5 0.5">
+        <joint name="axle_4r" type="hinge" axis="0 1 0"/>
+        <geom type="cylinder" size="0.5 0.2" euler="90 0 0" material="apc_wheel" mass="100"/>
+      </body>
+      
+      <camera name="driver_cam" pos="3.5 0 1.8" euler="0 -10 0" fovy="70"/>
+      <site name="imu_site" pos="0 0 1.5" size="0.05"/>
+    </body>
+  </worldbody>
+  
+  <actuator>
+    <velocity name="motor_rl" joint="axle_4l" kv="1000"/>
+    <velocity name="motor_rr" joint="axle_4r" kv="1000"/>
+  </actuator>
+  
+  <sensor>
+    <accelerometer name="apc_imu" site="imu_site"/>
+    <gyro name="apc_gyro" site="imu_site"/>
+  </sensor>
+</mujoco>
+

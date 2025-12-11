@@ -1,0 +1,21 @@
+{
+  "asset_id": "road",
+  "name": "Road Section",
+  "category": "prop",
+  "tags": ["road", "asphalt", "street", "pavement"],
+  "fallback_for": ["street", "pavement", "path"],
+  "sensor_type": null,
+  "availability": "local",
+  "remote_url": null,
+  "mjcf_include": "mjcf/road.xml",
+  "physical_size": [10, 4, 0.1],
+  "placement_rules": {
+    "allow_on": ["ground"],
+    "min_clearance": 0.0
+  },
+  "semantics": {
+    "human_names": ["road", "street", "pavement"],
+    "usage": ["driving", "navigation"]
+  }
+}
+
