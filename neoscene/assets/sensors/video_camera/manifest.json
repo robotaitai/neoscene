@@ -1,0 +1,21 @@
+{
+  "asset_id": "video_camera",
+  "name": "Video Camera",
+  "category": "sensor",
+  "tags": ["camera", "video", "surveillance", "recording", "rgb"],
+  "fallback_for": ["webcam", "security_camera", "cctv"],
+  "sensor_type": "camera",
+  "availability": "local",
+  "remote_url": null,
+  "mjcf_include": "mjcf/video_camera.xml",
+  "physical_size": [0.15, 0.1, 0.1],
+  "placement_rules": {
+    "allow_on": ["mount", "tripod", "wall", "ceiling"],
+    "min_clearance": 0.0
+  },
+  "semantics": {
+    "human_names": ["video camera", "camcorder", "recording camera"],
+    "usage": ["surveillance", "recording", "monitoring", "vision"]
+  }
+}
+

@@ -1,0 +1,26 @@
+{
+  "asset_id": "forklift",
+  "name": "Forklift",
+  "category": "vehicle",
+  "tags": ["forklift", "warehouse", "logistics", "industrial", "loader"],
+  "fallback_for": ["loader", "lift_truck", "pallet_jack"],
+  "sensor_type": null,
+  "availability": "local",
+  "remote_url": null,
+  "mjcf_include": "mjcf/forklift.xml",
+  "physical_size": [2.6, 1.1, 1.6],
+  "placement_rules": {
+    "allow_on": ["ground", "floor"],
+    "min_clearance": 0.5
+  },
+  "semantics": {
+    "human_names": ["forklift", "fork lift", "lift truck", "pallet loader"],
+    "usage": ["warehouse", "logistics", "loading", "material handling"]
+  },
+  "extra": {
+    "mesh_pending": "forklift_2610x2264x986_minimum_height_green.stp",
+    "mesh_format": "STEP",
+    "conversion_needed": "STEP to OBJ/STL"
+  }
+}
+

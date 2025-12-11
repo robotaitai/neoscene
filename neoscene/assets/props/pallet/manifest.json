@@ -1,0 +1,26 @@
+{
+  "asset_id": "pallet",
+  "name": "EUR Pallet",
+  "category": "prop",
+  "tags": ["pallet", "euro_pallet", "shipping", "cargo", "warehouse", "logistics"],
+  "fallback_for": ["shipping_pallet", "wooden_pallet"],
+  "sensor_type": null,
+  "availability": "local",
+  "remote_url": null,
+  "mjcf_include": "mjcf/pallet.xml",
+  "physical_size": [1.2, 0.8, 0.15],
+  "placement_rules": {
+    "allow_on": ["ground", "floor", "truck", "forklift"],
+    "min_clearance": 0.0
+  },
+  "semantics": {
+    "human_names": ["pallet", "euro pallet", "shipping pallet", "wooden pallet"],
+    "usage": ["warehouse", "shipping", "logistics", "storage", "cargo"]
+  },
+  "extra": {
+    "mesh_pending": "pallet_1200x800.stp",
+    "mesh_format": "STEP",
+    "conversion_needed": "STEP to OBJ/STL"
+  }
+}
+

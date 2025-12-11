@@ -1,0 +1,28 @@
+<mujoco>
+  <!-- Standard EUR pallet 1200x800mm (primitive approximation) -->
+  <asset>
+    <material name="pallet_wood" rgba="0.6 0.45 0.3 1"/>
+  </asset>
+  
+  <worldbody>
+    <body name="pallet_root">
+      <!-- Top boards (5 boards) -->
+      <geom name="top_1" type="box" size="0.6 0.07 0.01" pos="0 0.32 0.14" material="pallet_wood"/>
+      <geom name="top_2" type="box" size="0.6 0.07 0.01" pos="0 0.16 0.14" material="pallet_wood"/>
+      <geom name="top_3" type="box" size="0.6 0.07 0.01" pos="0 0 0.14" material="pallet_wood"/>
+      <geom name="top_4" type="box" size="0.6 0.07 0.01" pos="0 -0.16 0.14" material="pallet_wood"/>
+      <geom name="top_5" type="box" size="0.6 0.07 0.01" pos="0 -0.32 0.14" material="pallet_wood"/>
+      
+      <!-- Stringers (3 longitudinal support beams) -->
+      <geom name="stringer_1" type="box" size="0.6 0.04 0.06" pos="0 0.32 0.08" material="pallet_wood"/>
+      <geom name="stringer_2" type="box" size="0.6 0.04 0.06" pos="0 0 0.08" material="pallet_wood"/>
+      <geom name="stringer_3" type="box" size="0.6 0.04 0.06" pos="0 -0.32 0.08" material="pallet_wood"/>
+      
+      <!-- Bottom boards (3 boards) -->
+      <geom name="bottom_1" type="box" size="0.6 0.07 0.01" pos="0 0.32 0.01" material="pallet_wood"/>
+      <geom name="bottom_2" type="box" size="0.6 0.07 0.01" pos="0 0 0.01" material="pallet_wood"/>
+      <geom name="bottom_3" type="box" size="0.6 0.07 0.01" pos="0 -0.32 0.01" material="pallet_wood"/>
+    </body>
+  </worldbody>
+</mujoco>
+

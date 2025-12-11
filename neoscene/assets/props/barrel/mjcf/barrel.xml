@@ -1,0 +1,24 @@
+<mujoco>
+  <!-- Wooden barrel (primitive approximation - mesh available in 3DS) -->
+  <asset>
+    <material name="barrel_wood" rgba="0.5 0.35 0.2 1"/>
+    <material name="barrel_metal" rgba="0.25 0.25 0.3 1"/>
+  </asset>
+  
+  <worldbody>
+    <body name="barrel_root">
+      <!-- Main barrel body (cylinder with slight bulge effect via multiple cylinders) -->
+      <geom name="barrel_bottom" type="cylinder" size="0.28 0.05" pos="0 0 0.05" material="barrel_wood"/>
+      <geom name="barrel_lower" type="cylinder" size="0.32 0.15" pos="0 0 0.2" material="barrel_wood"/>
+      <geom name="barrel_middle" type="cylinder" size="0.35 0.15" pos="0 0 0.45" material="barrel_wood"/>
+      <geom name="barrel_upper" type="cylinder" size="0.32 0.15" pos="0 0 0.7" material="barrel_wood"/>
+      <geom name="barrel_top" type="cylinder" size="0.28 0.05" pos="0 0 0.85" material="barrel_wood"/>
+      
+      <!-- Metal bands -->
+      <geom name="band_1" type="cylinder" size="0.36 0.015" pos="0 0 0.12" material="barrel_metal"/>
+      <geom name="band_2" type="cylinder" size="0.36 0.015" pos="0 0 0.45" material="barrel_metal"/>
+      <geom name="band_3" type="cylinder" size="0.36 0.015" pos="0 0 0.78" material="barrel_metal"/>
+    </body>
+  </worldbody>
+</mujoco>
+

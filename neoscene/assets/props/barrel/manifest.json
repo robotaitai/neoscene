@@ -1,0 +1,27 @@
+{
+  "asset_id": "barrel",
+  "name": "Wooden Barrel",
+  "category": "prop",
+  "tags": ["barrel", "wooden", "container", "storage", "cask"],
+  "fallback_for": ["cask", "keg", "drum"],
+  "sensor_type": null,
+  "availability": "local",
+  "remote_url": null,
+  "mjcf_include": "mjcf/barrel.xml",
+  "physical_size": [0.7, 0.7, 0.9],
+  "placement_rules": {
+    "allow_on": ["ground", "floor", "pallet"],
+    "min_clearance": 0.1
+  },
+  "semantics": {
+    "human_names": ["barrel", "wooden barrel", "cask", "keg"],
+    "usage": ["storage", "decoration", "warehouse", "rustic scene"]
+  },
+  "extra": {
+    "mesh_available": "barrel.3ds",
+    "mesh_format": "3DS",
+    "textures": ["PlanksNe.jpg", "rust.jpg"],
+    "conversion_needed": "3DS to OBJ"
+  }
+}
+

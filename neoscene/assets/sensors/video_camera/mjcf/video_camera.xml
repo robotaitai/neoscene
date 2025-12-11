@@ -1,0 +1,21 @@
+<mujoco>
+  <!-- Video camera with realistic mesh -->
+  <asset>
+    <mesh name="video_camera_mesh" file="../meshes/10128_Video_camera_v1_L3.obj" scale="0.01 0.01 0.01"/>
+    <texture name="video_camera_tex" file="../textures/10128_video_camera_v1_Diffuse.jpg" type="2d"/>
+    <material name="video_camera_mat" texture="video_camera_tex"/>
+  </asset>
+  
+  <worldbody>
+    <body name="video_camera_body">
+      <geom name="camera_mesh" type="mesh" mesh="video_camera_mesh" material="video_camera_mat"/>
+      
+      <!-- Camera site for sensor -->
+      <site name="camera_lens" pos="0.05 0 0"/>
+      
+      <!-- The actual MuJoCo camera looking through the lens -->
+      <camera name="video_cam" pos="0.05 0 0" fovy="60"/>
+    </body>
+  </worldbody>
+</mujoco>
+
