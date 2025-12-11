@@ -1,20 +1,20 @@
 {
-  "asset_id": "tractor_bluewhite",
-  "name": "Blue & White Tractor",
+  "asset_id": "tractor",
+  "name": "Farm Tractor",
   "category": "vehicle",
   "tags": ["tractor", "farm_vehicle", "agricultural", "wheeled", "robot"],
-  "fallback_for": [],
+  "fallback_for": ["farm_tractor", "agricultural_vehicle"],
   "sensor_type": null,
   "availability": "local",
   "remote_url": null,
-  "mjcf_include": "mjcf/tractor_bluewhite.xml",
+  "mjcf_include": "mjcf/tractor.xml",
   "physical_size": [4.0, 2.0, 2.5],
   "placement_rules": {
     "allow_on": ["ground"],
     "min_clearance": 0.5
   },
   "semantics": {
-    "human_names": ["tractor", "farm tractor", "blue tractor", "agricultural vehicle"],
+    "human_names": ["tractor", "farm tractor", "agricultural vehicle"],
     "usage": ["farming", "hauling", "agriculture", "field work"]
   }
 }

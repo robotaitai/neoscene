@@ -207,11 +207,20 @@ class SimulationWorker:
         if m.ncam == 0:
             return
         
+        # Find the best camera to use (prefer vehicle-mounted cameras)
+        camera_idx = 0
+        for i in range(m.ncam):
+            name = mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_CAMERA, i)
+            if name and ('driver' in name.lower() or 'rear' in name.lower()):
+                camera_idx = i
+                break
+        
         # Initialize renderer if needed
         if self._renderer is None:
             try:
                 self._renderer = mujoco.Renderer(m, height=240, width=320)
-                logger.info(f"Camera renderer initialized for {m.ncam} camera(s)")
+                cam_name = mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_CAMERA, camera_idx)
+                logger.info(f"Camera renderer: using '{cam_name}' ({m.ncam} total)")
             except Exception as e:
                 if not self._render_error_logged:
                     logger.warning(f"Could not create camera renderer: {e}")
@@ -219,8 +228,8 @@ class SimulationWorker:
                 return
         
         try:
-            # Update scene and render using first camera
-            self._renderer.update_scene(d, camera=0)
+            # Update scene and render
+            self._renderer.update_scene(d, camera=camera_idx)
             self.latest_image = self._renderer.render()
         except Exception as e:
             if not self._render_error_logged:
