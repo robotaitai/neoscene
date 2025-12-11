@@ -1,7 +1,82 @@
-<!-- Tractor robot - includable fragment -->
-<geom name="chassis" type="box" size="2 1 0.5" rgba="0.2 0.4 0.8 1" mass="1000"/>
-<geom name="cabin" type="box" size="0.8 0.8 0.6" pos="-0.5 0 0.8" rgba="0.9 0.9 0.9 1" mass="200"/>
-<geom name="wheel_fl" type="cylinder" size="0.4 0.2" pos="1.5 1.1 -0.3" euler="90 0 0" rgba="0.1 0.1 0.1 1"/>
-<geom name="wheel_fr" type="cylinder" size="0.4 0.2" pos="1.5 -1.1 -0.3" euler="90 0 0" rgba="0.1 0.1 0.1 1"/>
-<geom name="wheel_rl" type="cylinder" size="0.6 0.3" pos="-1.2 1.2 -0.2" euler="90 0 0" rgba="0.1 0.1 0.1 1"/>
-<geom name="wheel_rr" type="cylinder" size="0.6 0.3" pos="-1.2 -1.2 -0.2" euler="90 0 0" rgba="0.1 0.1 0.1 1"/>
+<mujoco>
+  <!-- Tractor with spinning wheels and attached sensors -->
+  <!-- NOTE: Currently kinematic (wheels spin but tractor is anchored) -->
+  <!-- For full dynamics, needs freejoint support in scene exporter -->
+  <compiler angle="degree"/>
+  
+  <default>
+    <joint damping="0.5"/>
+    <geom friction="1 0.5 0.5"/>
+  </default>
+  
+  <asset>
+    <material name="tractor_body" rgba="0.2 0.4 0.7 1"/>
+    <material name="tractor_white" rgba="0.9 0.9 0.95 1"/>
+    <material name="tractor_wheel" rgba="0.15 0.15 0.15 1"/>
+    <material name="tractor_metal" rgba="0.4 0.4 0.45 1"/>
+  </asset>
+  
+  <worldbody>
+    <body name="tractor_base">
+      <!-- Main chassis -->
+      <geom name="chassis" type="box" size="1.5 0.8 0.4" pos="0 0 0.8" material="tractor_body" mass="500"/>
+      <geom name="hood" type="box" size="0.8 0.6 0.3" pos="1.5 0 0.6" material="tractor_body" mass="200"/>
+      
+      <!-- Cab -->
+      <geom name="cab_base" type="box" size="0.6 0.7 0.5" pos="-0.3 0 1.4" material="tractor_white" mass="100"/>
+      <geom name="cab_roof" type="box" size="0.65 0.75 0.05" pos="-0.3 0 1.95" material="tractor_metal" mass="20"/>
+      
+      <!-- Engine block -->
+      <geom name="engine" type="box" size="0.6 0.5 0.35" pos="1.5 0 1.0" material="tractor_metal" mass="300"/>
+      
+      <!-- ========== SENSOR MOUNT ========== -->
+      <site name="imu_site" pos="0 0 2.0" size="0.05"/>
+      <camera name="driver_cam" pos="0.5 0 1.8" euler="0 -5 0" fovy="70"/>
+      <camera name="rear_cam" pos="-1.5 0 1.5" euler="0 -10 180" fovy="90"/>
+      
+      <!-- ========== FRONT WHEELS (spinning) ========== -->
+      <body name="wheel_fl_body" pos="1.3 0.9 0.4">
+        <joint name="wheel_fl" type="hinge" axis="0 1 0"/>
+        <geom name="wheel_fl" type="cylinder" size="0.4 0.15" euler="90 0 0" material="tractor_wheel" mass="30"/>
+      </body>
+      
+      <body name="wheel_fr_body" pos="1.3 -0.9 0.4">
+        <joint name="wheel_fr" type="hinge" axis="0 1 0"/>
+        <geom name="wheel_fr" type="cylinder" size="0.4 0.15" euler="90 0 0" material="tractor_wheel" mass="30"/>
+      </body>
+      
+      <!-- ========== REAR WHEELS (drive wheels, larger) ========== -->
+      <body name="wheel_rl_body" pos="-1.0 0.85 0.6">
+        <joint name="wheel_rl" type="hinge" axis="0 1 0"/>
+        <geom name="wheel_rl" type="cylinder" size="0.6 0.2" euler="90 0 0" material="tractor_wheel" mass="50"/>
+      </body>
+      
+      <body name="wheel_rr_body" pos="-1.0 -0.85 0.6">
+        <joint name="wheel_rr" type="hinge" axis="0 1 0"/>
+        <geom name="wheel_rr" type="cylinder" size="0.6 0.2" euler="90 0 0" material="tractor_wheel" mass="50"/>
+      </body>
+    </body>
+  </worldbody>
+  
+  <!-- ========== ACTUATORS ========== -->
+  <actuator>
+    <!-- Wheel motors (velocity control) -->
+    <velocity name="motor_fl" joint="wheel_fl" kv="10"/>
+    <velocity name="motor_fr" joint="wheel_fr" kv="10"/>
+    <velocity name="motor_rl" joint="wheel_rl" kv="20"/>
+    <velocity name="motor_rr" joint="wheel_rr" kv="20"/>
+  </actuator>
+  
+  <!-- ========== SENSORS ========== -->
+  <sensor>
+    <!-- IMU sensors on the tractor body -->
+    <accelerometer name="imu_accel" site="imu_site"/>
+    <gyro name="imu_gyro" site="imu_site"/>
+    
+    <!-- Wheel encoders (angular velocity) -->
+    <jointvel name="encoder_fl" joint="wheel_fl"/>
+    <jointvel name="encoder_fr" joint="wheel_fr"/>
+    <jointvel name="encoder_rl" joint="wheel_rl"/>
+    <jointvel name="encoder_rr" joint="wheel_rr"/>
+  </sensor>
+</mujoco>

@@ -194,7 +194,7 @@ def _load_asset_content(mjcf_path: Path, prefix: str) -> dict:
     content = re.sub(r"<!--.*?-->", "", content, flags=re.DOTALL)
     content = content.strip()
 
-    result = {"worldbody": [], "sensors": [], "assets": []}
+    result = {"worldbody": [], "sensors": [], "assets": [], "actuators": []}
 
     if not content:
         return result
@@ -220,8 +220,13 @@ def _load_asset_content(mjcf_path: Path, prefix: str) -> dict:
         if "name" in elem.attrib and elem.get("name") in name_map:
             elem.set("name", name_map[elem.get("name")])
         
-        # Rename reference attributes (site, material, mesh, texture, etc.)
-        for ref_attr in ["site", "material", "mesh", "texture", "class", "childclass"]:
+        # Rename reference attributes (site, material, mesh, texture, joint, body, etc.)
+        ref_attrs = [
+            "site", "material", "mesh", "texture", "class", "childclass",
+            "joint", "joint1", "joint2", "body", "body1", "body2",
+            "geom", "geom1", "geom2", "tendon", "actuator", "sensor"
+        ]
+        for ref_attr in ref_attrs:
             if ref_attr in elem.attrib:
                 old_ref = elem.get(ref_attr)
                 if old_ref in name_map:
@@ -233,7 +238,10 @@ def _load_asset_content(mjcf_path: Path, prefix: str) -> dict:
     # Handle <mujoco> root element
     if root.tag == "mujoco":
         # First pass: collect all names from the entire tree
-        for section in [root.find("asset"), root.find("worldbody"), root.find("sensor")]:
+        # Include all sections that might have named elements
+        sections_to_scan = ["asset", "worldbody", "sensor", "actuator", "tendon", "equality"]
+        for section_name in sections_to_scan:
+            section = root.find(section_name)
             if section is not None:
                 collect_names(section)
         
@@ -258,6 +266,13 @@ def _load_asset_content(mjcf_path: Path, prefix: str) -> dict:
             for child in sensor_elem:
                 rename_recursive(child)
                 result["sensors"].append(child)
+        
+        # Extract actuator elements
+        actuator_elem = root.find("actuator")
+        if actuator_elem is not None:
+            for child in actuator_elem:
+                rename_recursive(child)
+                result["actuators"].append(child)
     else:
         # Legacy: treat as raw elements
         collect_names(root)
@@ -350,8 +365,9 @@ def scene_to_mjcf(
             if light_spec.type == "directional":
                 light.set("directional", "true")
 
-    # Collect all sensors from assets
+    # Collect all sensors and actuators from assets
     all_sensors = []
+    all_actuators = []
 
     # Add environment
     env_manifest = catalog.get(scene.environment.asset_id)
@@ -369,6 +385,7 @@ def scene_to_mjcf(
     for elem in env_content["assets"]:
         asset.append(elem)
     all_sensors.extend(env_content["sensors"])
+    all_actuators.extend(env_content["actuators"])
 
     # Add objects
     for obj in scene.objects:
@@ -404,6 +421,7 @@ def scene_to_mjcf(
             for elem in obj_content["assets"]:
                 asset.append(elem)
             all_sensors.extend(obj_content["sensors"])
+            all_actuators.extend(obj_content["actuators"])
 
     # Add cameras
     for cam in scene.cameras:
@@ -420,6 +438,12 @@ def scene_to_mjcf(
             roll, pitch, yaw = _to_euler_deg(cam.pose)
             if roll != 0 or pitch != 0 or yaw != 0:
                 camera.set("euler", _format_vec([roll, pitch, yaw]))
+
+    # Add actuators section if we have any
+    if all_actuators:
+        actuator_section = ET.SubElement(mujoco, "actuator")
+        for actuator_elem in all_actuators:
+            actuator_section.append(actuator_elem)
 
     # Add sensors section if we have any
     if all_sensors:

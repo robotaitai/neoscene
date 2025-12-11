@@ -61,6 +61,7 @@ class SimulationWorker:
         
         while self.running:
             try:
+                self._apply_controls()
                 mujoco.mj_step(self._model, self._data)
                 self._read_sensors()
                 self._render_camera()
@@ -70,6 +71,24 @@ class SimulationWorker:
                 break
         
         logger.info("SimWorker stopped")
+    
+    def _apply_controls(self):
+        """Apply simple control inputs to actuators.
+        
+        This is a simple "drive forward" demo controller.
+        Sets wheel motors to a slow constant velocity.
+        """
+        import mujoco
+        
+        m = self._model
+        d = self._data
+        
+        # Simple demo: set all velocity-controlled wheel motors to spin slowly
+        for i in range(m.nu):
+            name = mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_ACTUATOR, i)
+            if name and ('motor' in name.lower() or 'drive' in name.lower()):
+                # Gentle forward motion: 2 rad/s (about 0.5 m/s for 0.5m wheel)
+                d.ctrl[i] = 2.0
     
     def _read_sensors(self):
         """Read all sensor values from the simulation."""
