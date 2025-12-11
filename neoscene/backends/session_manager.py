@@ -419,7 +419,7 @@ class SceneSessionManager:
         temp_file.close()
         session.temp_xml_path = Path(temp_file.name)
 
-        # 1) Launch viewer in subprocess with minimal UI
+        # 1) Launch viewer in subprocess with UI hidden by default
         viewer_script = f'''
 import mujoco
 import mujoco.viewer
@@ -429,11 +429,15 @@ model = mujoco.MjModel.from_xml_path("{session.temp_xml_path}")
 data = mujoco.MjData(model)
 
 with mujoco.viewer.launch_passive(model, data) as viewer:
-    # Hide UI panels for cleaner view
+    # Hide the UI panels (equivalent to pressing Tab)
+    viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_COM] = False
     viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_JOINT] = False
-    viewer.cam.distance = 40.0  # Zoom out for better overview
-    viewer.cam.elevation = -30.0  # Top-down angle
-    viewer.cam.azimuth = 90.0  # Face forward
+    
+    # Set a nicer camera position
+    viewer.cam.azimuth = -45
+    viewer.cam.elevation = -25
+    viewer.cam.distance = 30
+    viewer.cam.lookat[:] = [10, 10, 0]
     
     while viewer.is_running():
         mujoco.mj_step(model, data)
