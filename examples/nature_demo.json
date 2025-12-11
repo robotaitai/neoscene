@@ -1,0 +1,90 @@
+{
+  "name": "nature_demo",
+  "description": "A natural terrain scene with trees, a tractor, and birds",
+  "environment": {
+    "asset_id": "terrain",
+    "gravity": [0.0, 0.0, -9.81]
+  },
+  "objects": [
+    {
+      "asset_id": "tractor_red",
+      "name": "farm_tractor",
+      "instances": [
+        {
+          "pose": {
+            "position": [5.0, 3.0, 0.5],
+            "yaw_deg": -15.0
+          }
+        }
+      ]
+    },
+    {
+      "asset_id": "trees",
+      "name": "forest",
+      "layout": {
+        "type": "random",
+        "center": [-10.0, 0.0, 0.0],
+        "radius": 15.0,
+        "count": 8,
+        "min_separation": 5.0,
+        "random_yaw": true
+      }
+    },
+    {
+      "asset_id": "bird",
+      "name": "birds",
+      "layout": {
+        "type": "random",
+        "center": [0.0, 0.0, 8.0],
+        "radius": 12.0,
+        "count": 5,
+        "min_separation": 2.0,
+        "random_yaw": true
+      }
+    },
+    {
+      "asset_id": "crate_wooden_small",
+      "name": "supplies",
+      "layout": {
+        "type": "grid",
+        "origin": [8.0, -2.0, 0.2],
+        "rows": 2,
+        "cols": 2,
+        "spacing": [0.7, 0.5]
+      }
+    }
+  ],
+  "cameras": [
+    {
+      "name": "overview",
+      "pose": {
+        "position": [25.0, 25.0, 20.0]
+      },
+      "target": [0.0, 0.0, 2.0],
+      "fovy": 50.0
+    },
+    {
+      "name": "ground_level",
+      "pose": {
+        "position": [12.0, 0.0, 2.0]
+      },
+      "target": [0.0, 0.0, 5.0],
+      "fovy": 60.0
+    }
+  ],
+  "lights": [
+    {
+      "name": "sun",
+      "type": "directional",
+      "position": [0.0, 0.0, 30.0],
+      "direction": [0.4, 0.3, -1.0],
+      "diffuse": [1.0, 0.95, 0.85]
+    }
+  ],
+  "physics": {
+    "timestep": 0.002,
+    "solver": "Newton",
+    "iterations": 50
+  }
+}
+

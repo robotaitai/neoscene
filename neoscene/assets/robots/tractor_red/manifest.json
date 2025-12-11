@@ -1,0 +1,20 @@
+{
+  "asset_id": "tractor_red",
+  "name": "Red Farm Tractor",
+  "category": "robot",
+  "tags": ["vehicle", "tractor", "farm", "wheeled", "agriculture", "red"],
+  "mjcf_include": "mjcf/tractor_red.xml",
+  "physical_size": [4.5, 2.2, 2.8],
+  "placement_rules": {
+    "allow_on": ["ground"],
+    "min_clearance": 0.5
+  },
+  "semantics": {
+    "human_names": ["tractor", "red tractor", "farm tractor", "agricultural vehicle"],
+    "usage": ["farming", "hauling", "agriculture", "field work"]
+  },
+  "extra": {
+    "mesh_file": "meshes/Tractor.obj"
+  }
+}
+

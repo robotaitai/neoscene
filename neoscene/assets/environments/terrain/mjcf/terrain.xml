@@ -1,0 +1,7 @@
+<!-- Natural Terrain - includable fragment -->
+<!-- Simplified terrain with undulating ground -->
+<geom name="terrain_base" type="plane" size="50 50 0.1" rgba="0.35 0.45 0.25 1"/>
+<geom name="hill_1" type="ellipsoid" size="8 6 2" pos="15 10 -1" rgba="0.4 0.5 0.3 1"/>
+<geom name="hill_2" type="ellipsoid" size="10 8 3" pos="-20 -15 -1.5" rgba="0.38 0.48 0.28 1"/>
+<geom name="hill_3" type="ellipsoid" size="6 5 1.5" pos="5 -25 -0.8" rgba="0.42 0.52 0.32 1"/>
+

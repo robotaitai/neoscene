@@ -1,0 +1,2 @@
+<!-- Orchard environment - includable fragment -->
+<geom name="ground" type="plane" size="50 50 0.1" rgba="0.4 0.6 0.3 1"/>

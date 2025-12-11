@@ -1,0 +1,58 @@
+{
+  "name": "orchard_example",
+  "description": "A simple orchard scene with a tractor and crates",
+  "environment": {
+    "asset_id": "orchard",
+    "gravity": [0.0, 0.0, -9.81]
+  },
+  "objects": [
+    {
+      "asset_id": "tractor_bluewhite",
+      "name": "tractor",
+      "instances": [
+        {
+          "pose": {
+            "position": [3.0, 2.0, 0.0],
+            "yaw_deg": 30.0
+          }
+        }
+      ]
+    },
+    {
+      "asset_id": "crate_wooden_small",
+      "name": "crates",
+      "layout": {
+        "type": "grid",
+        "origin": [-2.0, -2.0, 0.0],
+        "rows": 1,
+        "cols": 3,
+        "spacing": [0.8, 0.8]
+      }
+    }
+  ],
+  "cameras": [
+    {
+      "name": "overhead",
+      "pose": {
+        "position": [0.0, 0.0, 10.0],
+        "pitch_deg": -90.0
+      },
+      "fovy": 60.0
+    }
+  ],
+  "lights": [
+    {
+      "name": "sun",
+      "type": "directional",
+      "position": [0.0, 0.0, 15.0],
+      "direction": [0.3, 0.3, -1.0],
+      "diffuse": [1.0, 0.95, 0.9]
+    }
+  ],
+  "physics": {
+    "timestep": 0.002,
+    "solver": "Newton",
+    "iterations": 50
+  }
+}
+

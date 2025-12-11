@@ -1,0 +1,20 @@
+{
+  "asset_id": "bird",
+  "name": "Bird",
+  "category": "prop",
+  "tags": ["bird", "animal", "flying", "wildlife", "nature"],
+  "mjcf_include": "mjcf/bird.xml",
+  "physical_size": [0.3, 0.15, 0.12],
+  "placement_rules": {
+    "allow_on": ["ground", "tree", "perch"],
+    "min_clearance": 0.1
+  },
+  "semantics": {
+    "human_names": ["bird", "sparrow", "small bird", "songbird"],
+    "usage": ["decoration", "wildlife", "nature", "animation"]
+  },
+  "extra": {
+    "mesh_file": "meshes/12248_Bird_v1_L2.obj"
+  }
+}
+

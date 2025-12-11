@@ -1,0 +1,89 @@
+{
+  "name": "warehouse_scene",
+  "description": "An indoor warehouse with crates arranged in rows and a robot",
+  "environment": {
+    "asset_id": "terrain",
+    "gravity": [0.0, 0.0, -9.81]
+  },
+  "objects": [
+    {
+      "asset_id": "tractor_bluewhite",
+      "name": "forklift",
+      "instances": [
+        {
+          "pose": {
+            "position": [0.0, 0.0, 0.0],
+            "yaw_deg": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "asset_id": "crate_wooden_small",
+      "name": "storage_row_1",
+      "layout": {
+        "type": "grid",
+        "origin": [-8.0, 5.0, 0.2],
+        "rows": 1,
+        "cols": 8,
+        "spacing": [0.7, 0.6]
+      }
+    },
+    {
+      "asset_id": "crate_wooden_small",
+      "name": "storage_row_2",
+      "layout": {
+        "type": "grid",
+        "origin": [-8.0, 7.0, 0.2],
+        "rows": 1,
+        "cols": 8,
+        "spacing": [0.7, 0.6]
+      }
+    },
+    {
+      "asset_id": "crate_wooden_small",
+      "name": "scattered",
+      "layout": {
+        "type": "random",
+        "center": [5.0, -5.0, 0.2],
+        "radius": 3.0,
+        "count": 6,
+        "min_separation": 0.8,
+        "random_yaw": true
+      }
+    }
+  ],
+  "cameras": [
+    {
+      "name": "overhead",
+      "pose": {
+        "position": [0.0, 0.0, 15.0],
+        "pitch_deg": -90.0
+      },
+      "fovy": 60.0
+    },
+    {
+      "name": "corner",
+      "pose": {
+        "position": [-15.0, -15.0, 8.0]
+      },
+      "target": [0.0, 0.0, 0.0],
+      "fovy": 50.0
+    }
+  ],
+  "lights": [
+    {
+      "name": "overhead_light",
+      "type": "directional",
+      "position": [0.0, 0.0, 12.0],
+      "direction": [0.0, 0.0, -1.0],
+      "diffuse": [1.0, 1.0, 0.95]
+    }
+  ],
+  "physics": {
+    "timestep": 0.002,
+    "solver": "Newton",
+    "iterations": 50
+  }
+}
+

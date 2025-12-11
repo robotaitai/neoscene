@@ -1,0 +1,20 @@
+{
+  "asset_id": "terrain",
+  "name": "Natural Terrain",
+  "category": "environment",
+  "tags": ["outdoor", "terrain", "nature", "ground", "landscape", "hills"],
+  "mjcf_include": "mjcf/terrain.xml",
+  "physical_size": [100.0, 100.0, 20.0],
+  "placement_rules": {
+    "allow_on": [],
+    "min_clearance": 0.0
+  },
+  "semantics": {
+    "human_names": ["terrain", "landscape", "natural ground", "hills", "outdoor"],
+    "usage": ["environment", "outdoor", "nature", "robotics testing"]
+  },
+  "extra": {
+    "mesh_file": "meshes/terrain.fbx"
+  }
+}
+

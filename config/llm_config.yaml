@@ -1,0 +1,19 @@
+# LLM Configuration for Neoscene
+# This file configures the language model settings for scene generation.
+
+# Model to use for generation
+# Options: gemini-2.0-flash, gemini-2.5-flash, gemini-2.5-pro
+default_model: "gemini-2.0-flash"
+
+# Temperature controls randomness (0.0 = deterministic, 1.0 = creative)
+# Lower values produce more consistent, focused outputs
+temperature: 0.3
+
+# Maximum number of tokens in the response
+# SceneSpec JSON typically needs 500-2000 tokens
+max_output_tokens: 2048
+
+# Additional model-specific settings can be added below
+# top_p: 0.95
+# top_k: 40
+

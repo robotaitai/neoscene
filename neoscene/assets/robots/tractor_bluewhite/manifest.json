@@ -1,0 +1,18 @@
+{
+  "asset_id": "tractor_bluewhite",
+  "name": "Blue & White Tractor",
+  "category": "robot",
+  "tags": ["vehicle", "tractor", "farm", "wheeled", "autonomous"],
+  "mjcf_include": "mjcf/tractor_bluewhite.xml",
+  "physical_size": [4.0, 2.0, 2.5],
+  "placement_rules": {
+    "allow_on": ["ground"],
+    "min_clearance": 0.5
+  },
+  "semantics": {
+    "human_names": ["tractor", "farm tractor", "blue tractor", "agricultural vehicle"],
+    "usage": ["farming", "hauling", "agriculture", "field work"]
+  },
+  "extra": {}
+}
+

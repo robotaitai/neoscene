@@ -1,0 +1,18 @@
+{
+  "asset_id": "crate_wooden_small",
+  "name": "Small Wooden Crate",
+  "category": "prop",
+  "tags": ["crate", "box", "wood", "stackable", "container"],
+  "mjcf_include": "mjcf/crate_wooden_small.xml",
+  "physical_size": [0.6, 0.4, 0.4],
+  "placement_rules": {
+    "allow_on": ["ground", "table", "shelf", "crate"],
+    "min_clearance": 0.02
+  },
+  "semantics": {
+    "human_names": ["crate", "box", "wooden crate", "wooden box", "small crate"],
+    "usage": ["logistics", "storage", "stacking"]
+  },
+  "extra": {}
+}
+

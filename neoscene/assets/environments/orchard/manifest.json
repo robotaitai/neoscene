@@ -1,0 +1,18 @@
+{
+  "asset_id": "orchard",
+  "name": "Apple Orchard",
+  "category": "environment",
+  "tags": ["outdoor", "farm", "trees", "agriculture", "nature"],
+  "mjcf_include": "mjcf/orchard.xml",
+  "physical_size": [100.0, 100.0, 10.0],
+  "placement_rules": {
+    "allow_on": [],
+    "min_clearance": 0.0
+  },
+  "semantics": {
+    "human_names": ["orchard", "apple farm", "fruit garden", "apple orchard"],
+    "usage": ["agriculture", "farming", "outdoor", "robotics testing"]
+  },
+  "extra": {}
+}
+

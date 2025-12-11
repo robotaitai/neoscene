@@ -1,0 +1,18 @@
+{
+  "asset_id": "cam_top_down",
+  "name": "Top-Down Camera",
+  "category": "sensor",
+  "tags": ["camera", "sensor", "vision", "overhead", "rgb"],
+  "mjcf_include": "mjcf/cam_top_down.xml",
+  "physical_size": null,
+  "placement_rules": {
+    "allow_on": ["ceiling", "mount", "robot"],
+    "min_clearance": 0.0
+  },
+  "semantics": {
+    "human_names": ["top camera", "overhead camera", "bird's eye camera", "top-down camera"],
+    "usage": ["monitoring", "surveillance", "tracking", "observation"]
+  },
+  "extra": {}
+}
+

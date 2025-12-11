@@ -1,0 +1,517 @@
+{
+  "$defs": {
+    "CameraSpec": {
+      "description": "Camera specification for scene observation.\n\nCameras can be specified with a pose, or aimed at a target point.\nIf asset_id is provided, it references a sensor asset from the catalog.",
+      "properties": {
+        "name": {
+          "description": "Unique name for the camera",
+          "title": "Name",
+          "type": "string"
+        },
+        "asset_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional sensor asset ID from catalog",
+          "title": "Asset Id"
+        },
+        "pose": {
+          "$ref": "#/$defs/Pose",
+          "description": "Camera pose in world coordinates"
+        },
+        "target": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 3,
+              "minItems": 3,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional [x, y, z] look-at target point",
+          "title": "Target"
+        },
+        "fovy": {
+          "default": 45.0,
+          "description": "Vertical FOV in degrees",
+          "maximum": 180.0,
+          "minimum": 1.0,
+          "title": "Fovy",
+          "type": "number"
+        }
+      },
+      "required": [
+        "name",
+        "pose"
+      ],
+      "title": "CameraSpec",
+      "type": "object"
+    },
+    "EnvironmentSpec": {
+      "description": "Environment/world specification.\n\nDefines the base environment asset and global settings like gravity.",
+      "properties": {
+        "asset_id": {
+          "description": "ID of the environment asset from catalog",
+          "title": "Asset Id",
+          "type": "string"
+        },
+        "size": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 3,
+              "minItems": 3,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional [x, y, z] size override in meters",
+          "title": "Size"
+        },
+        "gravity": {
+          "description": "Gravity vector [gx, gy, gz] in m/s\u00b2",
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Gravity",
+          "type": "array"
+        }
+      },
+      "required": [
+        "asset_id"
+      ],
+      "title": "EnvironmentSpec",
+      "type": "object"
+    },
+    "GridLayout": {
+      "description": "Layout objects in a regular grid pattern.\n\nObjects are placed starting from origin, with spacing between each.\nTotal count = rows * cols.",
+      "properties": {
+        "type": {
+          "const": "grid",
+          "default": "grid",
+          "title": "Type",
+          "type": "string"
+        },
+        "origin": {
+          "description": "[x, y, z] starting position of the grid",
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Origin",
+          "type": "array"
+        },
+        "rows": {
+          "description": "Number of rows in the grid",
+          "minimum": 1,
+          "title": "Rows",
+          "type": "integer"
+        },
+        "cols": {
+          "description": "Number of columns in the grid",
+          "minimum": 1,
+          "title": "Cols",
+          "type": "integer"
+        },
+        "spacing": {
+          "description": "[dx, dy] spacing between objects in meters",
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Spacing",
+          "type": "array"
+        },
+        "yaw_variation_deg": {
+          "default": 0.0,
+          "description": "Random yaw variation per object in degrees",
+          "title": "Yaw Variation Deg",
+          "type": "number"
+        }
+      },
+      "required": [
+        "rows",
+        "cols",
+        "spacing"
+      ],
+      "title": "GridLayout",
+      "type": "object"
+    },
+    "InstanceSpec": {
+      "description": "Explicit instance specification with a fixed pose.",
+      "properties": {
+        "pose": {
+          "$ref": "#/$defs/Pose",
+          "description": "Exact pose for this instance"
+        },
+        "name_suffix": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional suffix for the instance name",
+          "title": "Name Suffix"
+        }
+      },
+      "required": [
+        "pose"
+      ],
+      "title": "InstanceSpec",
+      "type": "object"
+    },
+    "LightSpec": {
+      "description": "Light specification for scene illumination.",
+      "properties": {
+        "name": {
+          "description": "Unique name for the light",
+          "title": "Name",
+          "type": "string"
+        },
+        "type": {
+          "default": "directional",
+          "description": "Type of light source",
+          "enum": [
+            "directional",
+            "point",
+            "spot"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "position": {
+          "description": "[x, y, z] position of the light",
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Position",
+          "type": "array"
+        },
+        "direction": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 3,
+              "minItems": 3,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "[dx, dy, dz] direction for directional/spot lights",
+          "title": "Direction"
+        },
+        "diffuse": {
+          "description": "[r, g, b] diffuse color (0-1)",
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Diffuse",
+          "type": "array"
+        },
+        "specular": {
+          "description": "[r, g, b] specular color (0-1)",
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Specular",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "LightSpec",
+      "type": "object"
+    },
+    "ObjectSpec": {
+      "description": "Specification for placing one or more instances of an asset.\n\nObjects can be placed using:\n- Explicit instances: Provide a list of InstanceSpec with exact poses\n- Grid layout: Place objects in a regular grid pattern\n- Random layout: Place objects randomly in an area\n\nExactly one of (instances, layout) must be provided, or neither for a\nsingle object at the default pose.",
+      "properties": {
+        "asset_id": {
+          "description": "ID of the asset from the catalog",
+          "title": "Asset Id",
+          "type": "string"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional name override for the object(s)",
+          "title": "Name"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GridLayout"
+            },
+            {
+              "$ref": "#/$defs/RandomLayout"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Layout pattern for multiple objects",
+          "title": "Layout"
+        },
+        "instances": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/InstanceSpec"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Explicit list of instance poses",
+          "title": "Instances"
+        }
+      },
+      "required": [
+        "asset_id"
+      ],
+      "title": "ObjectSpec",
+      "type": "object"
+    },
+    "PhysicsSpec": {
+      "description": "Physics simulation settings.",
+      "properties": {
+        "timestep": {
+          "default": 0.002,
+          "description": "Simulation timestep in seconds",
+          "exclusiveMinimum": 0,
+          "maximum": 0.1,
+          "title": "Timestep",
+          "type": "number"
+        },
+        "solver": {
+          "default": "Newton",
+          "description": "Constraint solver type",
+          "enum": [
+            "PGS",
+            "CG",
+            "Newton"
+          ],
+          "title": "Solver",
+          "type": "string"
+        },
+        "iterations": {
+          "default": 50,
+          "description": "Solver iterations per step",
+          "minimum": 1,
+          "title": "Iterations",
+          "type": "integer"
+        },
+        "integrator": {
+          "default": "implicitfast",
+          "description": "Numerical integrator",
+          "enum": [
+            "Euler",
+            "RK4",
+            "implicit",
+            "implicitfast"
+          ],
+          "title": "Integrator",
+          "type": "string"
+        }
+      },
+      "title": "PhysicsSpec",
+      "type": "object"
+    },
+    "Pose": {
+      "description": "3D pose specification with position and orientation.\n\nOrientation is specified using Euler angles in degrees for human readability.\nThe order of rotations is yaw (Z) -> pitch (Y) -> roll (X).",
+      "properties": {
+        "position": {
+          "description": "[x, y, z] position in meters",
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Position",
+          "type": "array"
+        },
+        "yaw_deg": {
+          "default": 0.0,
+          "description": "Rotation around Z-axis in degrees",
+          "title": "Yaw Deg",
+          "type": "number"
+        },
+        "pitch_deg": {
+          "default": 0.0,
+          "description": "Rotation around Y-axis in degrees",
+          "title": "Pitch Deg",
+          "type": "number"
+        },
+        "roll_deg": {
+          "default": 0.0,
+          "description": "Rotation around X-axis in degrees",
+          "title": "Roll Deg",
+          "type": "number"
+        }
+      },
+      "required": [
+        "position"
+      ],
+      "title": "Pose",
+      "type": "object"
+    },
+    "RandomLayout": {
+      "description": "Layout objects randomly within a circular area.\n\nObjects are placed randomly within a circle centered at 'center' with\nthe given radius. The z-coordinate from center is used for all objects.",
+      "properties": {
+        "type": {
+          "const": "random",
+          "default": "random",
+          "title": "Type",
+          "type": "string"
+        },
+        "center": {
+          "description": "[x, y, z] center of the spawn area",
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Center",
+          "type": "array"
+        },
+        "radius": {
+          "description": "Radius of the spawn area in meters",
+          "exclusiveMinimum": 0,
+          "title": "Radius",
+          "type": "number"
+        },
+        "count": {
+          "description": "Number of objects to spawn",
+          "minimum": 1,
+          "title": "Count",
+          "type": "integer"
+        },
+        "min_separation": {
+          "default": 0.0,
+          "description": "Minimum distance between objects in meters",
+          "title": "Min Separation",
+          "type": "number"
+        },
+        "random_yaw": {
+          "default": true,
+          "description": "Randomize yaw orientation",
+          "title": "Random Yaw",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "center",
+        "radius",
+        "count"
+      ],
+      "title": "RandomLayout",
+      "type": "object"
+    }
+  },
+  "description": "Complete scene specification - the intermediate representation (IR).\n\nThis is the main schema that the LLM generates and the exporter consumes.\nIt fully describes a MuJoCo scene including environment, objects, cameras,\nlights, and physics settings.\n\nExample:\n    >>> spec = SceneSpec(\n    ...     name=\"orchard_scene\",\n    ...     environment=EnvironmentSpec(asset_id=\"orchard\"),\n    ...     objects=[\n    ...         ObjectSpec(asset_id=\"tractor_bluewhite\", instances=[\n    ...             InstanceSpec(pose=Pose(position=[5.0, 0.0, 0.0]))\n    ...         ])\n    ...     ]\n    ... )",
+  "properties": {
+    "name": {
+      "description": "Unique name for the scene",
+      "title": "Name",
+      "type": "string"
+    },
+    "description": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Human-readable description of the scene",
+      "title": "Description"
+    },
+    "environment": {
+      "$ref": "#/$defs/EnvironmentSpec",
+      "description": "Environment/world specification"
+    },
+    "objects": {
+      "description": "List of objects to place in the scene",
+      "items": {
+        "$ref": "#/$defs/ObjectSpec"
+      },
+      "title": "Objects",
+      "type": "array"
+    },
+    "cameras": {
+      "description": "List of cameras in the scene",
+      "items": {
+        "$ref": "#/$defs/CameraSpec"
+      },
+      "title": "Cameras",
+      "type": "array"
+    },
+    "lights": {
+      "description": "Additional lights (beyond environment default)",
+      "items": {
+        "$ref": "#/$defs/LightSpec"
+      },
+      "title": "Lights",
+      "type": "array"
+    },
+    "physics": {
+      "$ref": "#/$defs/PhysicsSpec",
+      "description": "Physics simulation settings"
+    }
+  },
+  "required": [
+    "name",
+    "environment"
+  ],
+  "title": "SceneSpec",
+  "type": "object"
+}

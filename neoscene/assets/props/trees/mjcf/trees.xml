@@ -1,0 +1,5 @@
+<!-- Forest Trees - includable fragment -->
+<!-- Simplified tree representation for physics -->
+<geom name="tree_trunk" type="cylinder" size="0.3 4" pos="0 0 4" rgba="0.4 0.25 0.1 1"/>
+<geom name="tree_foliage" type="sphere" size="3" pos="0 0 9" rgba="0.2 0.5 0.15 1"/>
+

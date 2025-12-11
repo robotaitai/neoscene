@@ -1,0 +1,20 @@
+{
+  "asset_id": "trees",
+  "name": "Forest Trees",
+  "category": "prop",
+  "tags": ["tree", "forest", "nature", "vegetation", "foliage", "oak"],
+  "mjcf_include": "mjcf/trees.xml",
+  "physical_size": [8.0, 8.0, 12.0],
+  "placement_rules": {
+    "allow_on": ["ground"],
+    "min_clearance": 2.0
+  },
+  "semantics": {
+    "human_names": ["trees", "tree", "forest", "oak tree", "woodland"],
+    "usage": ["decoration", "nature", "environment", "scenery"]
+  },
+  "extra": {
+    "mesh_file": "meshes/trees9.obj"
+  }
+}
+
