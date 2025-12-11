@@ -29,13 +29,18 @@
           <div id="scene-status" class="panel-body">No scene loaded.</div>
         </div>
 
-        <div class="panel json-panel">
-          <div class="panel-header json-header" onclick="toggleJson()">
-            <span>SceneSpec JSON</span>
-            <span class="json-toggle" id="json-toggle-text">▼</span>
-          </div>
-          <div class="panel-body json-body collapsed" id="json-content">
-            <pre id="json-display">// No scene generated yet</pre>
+        <div class="panel world-panel">
+          <div class="panel-header">World Model</div>
+          <div id="world-model" class="panel-body world-body">
+            <div id="world-summary" class="world-summary">No scene yet.</div>
+
+            <details>
+              <summary class="json-toggle-btn">Raw SceneSpec JSON</summary>
+              <pre id="world-json" class="world-json">// No scene generated</pre>
+            </details>
+
+            <div class="history-title">Revisions (this session)</div>
+            <div id="world-history" class="history-body"></div>
           </div>
         </div>
 

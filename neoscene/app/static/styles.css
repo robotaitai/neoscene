@@ -265,6 +265,103 @@ body {
 .json-boolean { color: #a78bfa; }
 .json-null { color: #a78bfa; }
 
+/* World Model Panel */
+.world-panel {
+  flex: 1;
+  min-height: 200px;
+}
+
+.world-body {
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.world-summary {
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.world-summary strong {
+  color: #6b7280;
+}
+
+.world-summary code {
+  background: #1e293b;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 11px;
+  color: #7dd3fc;
+}
+
+.world-object-row {
+  padding: 2px 0 2px 12px;
+  font-size: 12px;
+}
+
+.json-toggle-btn {
+  cursor: pointer;
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 8px;
+  padding: 4px 0;
+  user-select: none;
+}
+
+.json-toggle-btn:hover {
+  color: #9ca3af;
+}
+
+.world-json {
+  margin-top: 6px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #111827;
+  background: #010409;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 10px;
+  max-height: 140px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  color: #9ca3af;
+}
+
+.history-title {
+  margin-top: 12px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #4b5563;
+  border-top: 1px solid #1e293b;
+  padding-top: 8px;
+}
+
+.history-body {
+  margin-top: 4px;
+  max-height: 80px;
+  overflow-y: auto;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+}
+
+.history-entry {
+  padding: 3px 0;
+  border-bottom: 1px solid #0f172a;
+  color: #6b7280;
+}
+
+.history-entry:last-child {
+  border-bottom: none;
+}
+
+.history-entry .rev-num {
+  color: #4b5563;
+}
+
+.history-entry .rev-name {
+  color: #7dd3fc;
+}
+
 /* Sensors Panel */
 .sensor-panel {
   max-height: 150px;

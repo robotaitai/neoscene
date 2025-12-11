@@ -1,7 +1,7 @@
 // neoscene console - app.js
 
 let currentSessionId = null;
-let jsonExpanded = true;
+let worldRevisions = [];  // list of scene_spec snapshots for this tab
 
 // ============================================
 // Message Handling
@@ -86,59 +86,95 @@ function updateSceneStatus(summary) {
 }
 
 // ============================================
-// JSON Display
+// World Model Inspector
 // ============================================
 
-function syntaxHighlight(json) {
-  if (typeof json !== "string") {
-    json = JSON.stringify(json, null, 2);
+function updateWorldModel(scene) {
+  const summaryEl = document.getElementById("world-summary");
+  const jsonEl = document.getElementById("world-json");
+  const historyEl = document.getElementById("world-history");
+
+  if (!summaryEl || !jsonEl || !historyEl) return;
+
+  if (!scene) {
+    summaryEl.textContent = "No scene yet.";
+    jsonEl.textContent = "// No scene generated";
+    historyEl.innerHTML = "";
+    worldRevisions = [];
+    return;
   }
-  
-  json = json.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  
-  return json.replace(
-    /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
-    function (match) {
-      let cls = "json-number";
-      if (/^"/.test(match)) {
-        if (/:$/.test(match)) {
-          cls = "json-key";
-        } else {
-          cls = "json-string";
-        }
-      } else if (/true|false/.test(match)) {
-        cls = "json-boolean";
-      } else if (/null/.test(match)) {
-        cls = "json-null";
+
+  // --- build a compact summary of the scene ---
+  const envId = scene.environment?.asset_id || "unknown";
+  const timestep = scene.physics?.timestep ?? "?";
+  const solver = scene.physics?.solver || "?";
+
+  // aggregate objects by asset_id
+  const counts = {};
+  (scene.objects || []).forEach((obj) => {
+    const id = obj.asset_id || "unknown_asset";
+    let c = 0;
+
+    if (typeof obj.count === "number") {
+      c = obj.count;
+    } else if (Array.isArray(obj.instances)) {
+      c = obj.instances.length;
+    } else if (obj.layout) {
+      // Estimate count from layout
+      if (obj.layout.type === "grid") {
+        c = (obj.layout.rows || 1) * (obj.layout.cols || 1);
+      } else if (obj.layout.count) {
+        c = obj.layout.count;
+      } else {
+        c = 1;
       }
-      return '<span class="' + cls + '">' + match + "</span>";
+    } else {
+      c = 1;
     }
-  );
-}
 
-function updateJsonDisplay(sceneSpec) {
-  const jsonDisplay = document.getElementById("json-display");
-  if (sceneSpec) {
-    const formatted = JSON.stringify(sceneSpec, null, 2);
-    jsonDisplay.innerHTML = syntaxHighlight(formatted);
-  } else {
-    jsonDisplay.innerHTML = '<span style="color: #6b7280;">// No scene generated yet</span>';
-  }
-}
+    counts[id] = (counts[id] || 0) + c;
+  });
 
-function toggleJson() {
-  const content = document.getElementById("json-content");
-  const toggleText = document.getElementById("json-toggle-text");
-  
-  jsonExpanded = !jsonExpanded;
-  
-  if (jsonExpanded) {
-    content.classList.remove("collapsed");
-    toggleText.textContent = "▲";
+  let html =
+    `<div><strong>Environment:</strong> <code>${envId}</code></div>` +
+    `<div><strong>Physics:</strong> dt=${timestep}, solver=${solver}</div>` +
+    `<div style="margin-top:6px;"><strong>Objects:</strong></div>`;
+
+  if (Object.keys(counts).length === 0) {
+    html += `<div class="world-object-row" style="color:#6b7280;">none</div>`;
   } else {
-    content.classList.add("collapsed");
-    toggleText.textContent = "▼";
+    Object.entries(counts).forEach(([id, c]) => {
+      html += `<div class="world-object-row"><code>${id}</code> × ${c}</div>`;
+    });
   }
+
+  const camCount = Array.isArray(scene.cameras) ? scene.cameras.length : 0;
+  html += `<div style="margin-top:6px;"><strong>Cameras:</strong> ${camCount}</div>`;
+
+  summaryEl.innerHTML = html;
+
+  // raw JSON
+  jsonEl.textContent = JSON.stringify(scene, null, 2);
+
+  // --- history (this tab only) ---
+  worldRevisions.push(scene);
+
+  historyEl.innerHTML = "";
+  const startIdx = Math.max(0, worldRevisions.length - 20); // last 20
+  for (let i = startIdx; i < worldRevisions.length; i++) {
+    const s = worldRevisions[i];
+    const name = s.name || "unnamed";
+    const objLen = Array.isArray(s.objects) ? s.objects.length : 0;
+    const camLen = Array.isArray(s.cameras) ? s.cameras.length : 0;
+
+    const row = document.createElement("div");
+    row.className = "history-entry";
+    row.innerHTML = `<span class="rev-num">#${i}</span> – <span class="rev-name">${name}</span> – ${objLen} obj, ${camLen} cam`;
+    historyEl.appendChild(row);
+  }
+  
+  // Scroll to bottom of history
+  historyEl.scrollTop = historyEl.scrollHeight;
 }
 
 // ============================================
@@ -185,7 +221,11 @@ async function sendMessage() {
     appendOp(data.assistant_message, "success");
 
     updateSceneStatus(data.scene_summary);
-    updateJsonDisplay(data.scene_spec);
+    
+    // Update world model panel with scene spec
+    if (data.scene_spec) {
+      updateWorldModel(data.scene_spec);
+    }
 
   } catch (e) {
     appendMessage("assistant", "Network error: " + e, true);
