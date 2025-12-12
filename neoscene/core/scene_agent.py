@@ -21,6 +21,40 @@ from neoscene.core.scene_tools import list_assets_by_category
 logger = get_logger(__name__)
 
 
+def _repair_json(json_str: str) -> str:
+    """Attempt to repair common JSON issues from LLM output.
+    
+    Fixes:
+    - Trailing commas before ] or }
+    - Single quotes to double quotes
+    - Removes JavaScript-style comments
+    - Truncated JSON (adds missing closing braces)
+    """
+    s = json_str.strip()
+    
+    # Remove JavaScript comments
+    s = re.sub(r'//.*?(?:\n|$)', '\n', s)
+    s = re.sub(r'/\*.*?\*/', '', s, flags=re.DOTALL)
+    
+    # Replace single quotes with double quotes (but not inside strings)
+    # This is a simple heuristic - replace 'key': with "key":
+    s = re.sub(r"'([^']+)'(\s*:)", r'"\1"\2', s)
+    
+    # Remove trailing commas before ] or }
+    s = re.sub(r',(\s*[}\]])', r'\1', s)
+    
+    # Count braces and add missing ones
+    open_braces = s.count('{') - s.count('}')
+    open_brackets = s.count('[') - s.count(']')
+    
+    if open_braces > 0:
+        s = s.rstrip() + '}' * open_braces
+    if open_brackets > 0:
+        s = s.rstrip() + ']' * open_brackets
+    
+    return s
+
+
 class SceneGenerationError(NeosceneError):
     """Error during scene generation."""
 
@@ -405,16 +439,23 @@ Instructions:
                 raw_data=raw_response,
             )
 
-        # Parse JSON
+        # Parse JSON (with repair attempt)
         try:
             data = json.loads(json_str)
         except json.JSONDecodeError as e:
-            logger.warning(f"Invalid JSON: {e}")
-            raise SceneValidationError(
-                f"Invalid JSON: {e}",
-                validation_errors=[str(e)],
-                raw_data=json_str,
-            )
+            # Try to repair common JSON issues
+            logger.debug(f"JSON parse failed, attempting repair: {e}")
+            repaired = _repair_json(json_str)
+            try:
+                data = json.loads(repaired)
+                logger.info("JSON repaired successfully")
+            except json.JSONDecodeError as e2:
+                logger.warning(f"Invalid JSON even after repair: {e2}")
+                raise SceneValidationError(
+                    f"Invalid JSON: {e2}",
+                    validation_errors=[str(e2)],
+                    raw_data=json_str,
+                )
 
         # Validate with Pydantic
         try:
@@ -739,7 +780,10 @@ Instructions:
         try:
             raw_response = self.llm.generate(full_prompt, temperature=0.3)
             json_str = _extract_json_from_response(raw_response)
-            return json.loads(json_str)
+            try:
+                return json.loads(json_str)
+            except json.JSONDecodeError:
+                return json.loads(_repair_json(json_str))
         except (LLMAPIError, json.JSONDecodeError, SceneGenerationError) as e:
             logger.warning(f"suggest_scene failed: {e}")
             return {"error": str(e)}
