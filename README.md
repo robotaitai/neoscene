@@ -254,6 +254,22 @@ temperature: 0.3
 max_output_tokens: 2048
 ```
 
+## ⚠️ Known Issues
+
+### Dual Simulation Architecture
+Currently two simulations run in parallel:
+- **MuJoCo GUI viewer** - Shows the scene but does NOT receive controls
+- **SimulationWorker** - Headless, runs TaskRunner, feeds the camera panel
+
+**Workaround**: When you start a task (`go` or `start task <name>`), watch the **camera feed panel** in the web UI to see the tractor moving.
+
+### Chat Commands
+Use these natural commands:
+- `go` / `start driving` / `drive` - Start the first available task
+- `stop` - Stop the current task
+- `start task <name>` - Start a specific task
+- `plan a task...` - Ask LLM to create a path/task
+
 ## Development
 
 ### Running Tests

@@ -951,6 +951,41 @@ neoscene/
             </p>
         </div>
 
+        <h2>⚠️ Known Issues & Limitations</h2>
+        
+        <div class="description">
+            <h3>Dual Simulation Architecture</h3>
+            <p>
+                Currently, there are <strong>two separate simulations</strong> running when you use neoscene:
+            </p>
+            <ul>
+                <li><strong>MuJoCo GUI Viewer</strong> - A separate subprocess showing the scene. This is for visualization only and does NOT receive control commands.</li>
+                <li><strong>SimulationWorker (Headless)</strong> - Runs in a background thread, controlled by TaskRunner. This is what feeds the camera panel and sensor data.</li>
+            </ul>
+            <p>
+                <span class="highlight-yellow">Workaround:</span> When running tasks, <strong>watch the camera panel</strong> in the web UI to see the tractor moving. The GUI viewer window shows a static/uncontrolled simulation.
+            </p>
+            
+            <h3>Future Improvements</h3>
+            <ul>
+                <li><strong>Unified Simulation</strong> - Use MuJoCo passive viewer with shared model/data so controls apply to both visualizations</li>
+                <li><strong>Web-based 3D Viewer</strong> - Stream rendered frames directly to the browser, eliminating the need for a separate GUI window</li>
+                <li><strong>Task UI Controls</strong> - Add play/pause/stop buttons in the UI instead of text commands</li>
+            </ul>
+        </div>
+
+        <h2>📝 Recent Changes (Dec 12, 2025)</h2>
+        
+        <div class="description">
+            <ul>
+                <li><strong>Gemini JSON Mode</strong> - Now using <code>response_mime_type="application/json"</code> for reliable structured output</li>
+                <li><strong>JSON Repair</strong> - Added automatic repair for common LLM JSON issues (trailing commas, missing braces)</li>
+                <li><strong>Natural Commands</strong> - Added <code>go</code>, <code>start driving</code>, <code>drive</code> as shortcuts to start the first task</li>
+                <li><strong>UI Layout Fix</strong> - Moved Ops Log and Hints below chat to keep camera panel visible</li>
+                <li><strong>TaskRunner Logging</strong> - Added periodic logging to confirm task execution is working</li>
+            </ul>
+        </div>
+
     </div>
 
     <script>

@@ -284,6 +284,13 @@ class TaskRunner:
         # Apply to actuators
         self.data.ctrl[self._left_motor_id] = v_left
         self.data.ctrl[self._right_motor_id] = v_right
+        
+        # Debug: log occasionally
+        if not hasattr(self, '_step_count'):
+            self._step_count = 0
+        self._step_count += 1
+        if self._step_count % 250 == 0:  # Every 5 seconds at 50Hz
+            logger.info(f"TaskRunner: pos=({x:.1f}, {y:.1f}) → target=({xt:.1f}, {yt:.1f}), ctrl=[{v_left:.1f}, {v_right:.1f}]")
 
         # Check if finished
         pts = self._path_points()
