@@ -29,6 +29,8 @@ def _repair_json(json_str: str) -> str:
     - Single quotes to double quotes
     - Removes JavaScript-style comments
     - Truncated JSON (adds missing closing braces)
+    - Missing commas between elements
+    - Unquoted keys
     """
     s = json_str.strip()
     
@@ -42,6 +44,21 @@ def _repair_json(json_str: str) -> str:
     
     # Remove trailing commas before ] or }
     s = re.sub(r',(\s*[}\]])', r'\1', s)
+    
+    # Fix missing commas between } and { (common in arrays of objects)
+    s = re.sub(r'\}(\s*)\{', r'},\1{', s)
+    
+    # Fix missing commas between ] and [ 
+    s = re.sub(r'\](\s*)\[', r'],\1[', s)
+    
+    # Fix missing commas between number/string and { or [
+    s = re.sub(r'(\d)(\s*)\{', r'\1,\2{', s)
+    s = re.sub(r'(\d)(\s*)\[', r'\1,\2[', s)
+    s = re.sub(r'"(\s*)\{', r'",\1{', s)
+    s = re.sub(r'"(\s*)\[', r'",\1[', s)
+    
+    # Fix missing commas between } or ] and "key":
+    s = re.sub(r'(\}|\])(\s*)"([^"]+)"(\s*):', r'\1,\2"\3"\4:', s)
     
     # Count braces and add missing ones
     open_braces = s.count('{') - s.count('}')
@@ -387,7 +404,8 @@ Instructions:
         full_prompt = f"{system_prompt}\n\n---\n\n{user_message}"
 
         try:
-            raw_response = self.llm.generate(
+            # Use generate_json for structured output (Gemini JSON mode)
+            raw_response = self.llm.generate_json(
                 full_prompt,
                 temperature=0.3,  # Lower for more consistent output
             )
@@ -444,13 +462,25 @@ Instructions:
             data = json.loads(json_str)
         except json.JSONDecodeError as e:
             # Try to repair common JSON issues
-            logger.debug(f"JSON parse failed, attempting repair: {e}")
+            logger.debug(f"JSON parse failed at position {e.pos}, attempting repair")
             repaired = _repair_json(json_str)
             try:
                 data = json.loads(repaired)
                 logger.info("JSON repaired successfully")
             except json.JSONDecodeError as e2:
-                logger.warning(f"Invalid JSON even after repair: {e2}")
+                # Log the problematic section for debugging
+                pos = e2.pos if hasattr(e2, 'pos') else 0
+                context_start = max(0, pos - 100)
+                context_end = min(len(repaired), pos + 100)
+                context = repaired[context_start:context_end]
+                logger.warning(f"Invalid JSON at pos {pos}: ...{context}...")
+                
+                # Write full JSON to temp file for debugging
+                import tempfile
+                with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+                    f.write(json_str)
+                    logger.warning(f"Saved failing JSON to: {f.name}")
+                
                 raise SceneValidationError(
                     f"Invalid JSON: {e2}",
                     validation_errors=[str(e2)],
@@ -740,7 +770,8 @@ Instructions:
         full_prompt = system_instructions + "\n\n" + user_block
 
         try:
-            raw_response = self.llm.generate(full_prompt, temperature=0.3)
+            # Use generate_json for structured output (Gemini JSON mode)
+            raw_response = self.llm.generate_json(full_prompt, temperature=0.3)
             logger.debug(f"LLM edit response received: {len(raw_response)} chars")
         except LLMAPIError as e:
             logger.error(f"LLM edit failed: {e}")

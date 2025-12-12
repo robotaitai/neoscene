@@ -242,24 +242,46 @@ class GeminiClient:
     def generate_json(
         self,
         prompt: str,
+        temperature: Optional[float] = None,
+        max_output_tokens: Optional[int] = None,
         **kwargs: Any,
     ) -> str:
-        """Generate a JSON response from the LLM.
+        """Generate a JSON response from the LLM using structured output mode.
 
-        This method adds hints to encourage JSON output.
+        Uses Gemini's response_mime_type="application/json" for reliable JSON output.
 
         Args:
             prompt: The input prompt.
+            temperature: Override the default temperature.
+            max_output_tokens: Override the default max tokens.
             **kwargs: Additional arguments passed to generate().
 
         Returns:
             The generated JSON string.
         """
-        json_prompt = f"""{prompt}
+        if not self.is_configured or not self.is_available:
+            return self._mock_generate(prompt)
 
-IMPORTANT: Respond with valid JSON only. No markdown, no explanation, just the JSON object."""
+        temp = temperature if temperature is not None else self.temperature
+        max_tokens = max_output_tokens if max_output_tokens is not None else self.max_output_tokens
 
-        return self.generate(json_prompt, **kwargs)
+        try:
+            generation_config = {
+                "temperature": temp,
+                "max_output_tokens": max_tokens,
+                "response_mime_type": "application/json",  # Force JSON output
+                **kwargs,
+            }
+
+            response = self._model.generate_content(
+                prompt,
+                generation_config=generation_config,
+            )
+
+            return response.text
+
+        except Exception as e:
+            raise LLMAPIError(f"Gemini API call failed: {e}")
 
     def __repr__(self) -> str:
         """Return a string representation of the client."""
